@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Waze Lite Ski</string>
 
+    <string name="activity_firebase_ui">Firebase UI</string>
+
     <string name="login">Login</string>
 
     <string name="register">Register</string>
