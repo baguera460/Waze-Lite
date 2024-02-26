@@ -70,4 +70,9 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-analytics")
+    implementation ("com.google.firebase:firebase-database-ktx:20.3.0")
+    implementation("androidx.activity:activity-compose:1.3.0-alpha02")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
+
 }
