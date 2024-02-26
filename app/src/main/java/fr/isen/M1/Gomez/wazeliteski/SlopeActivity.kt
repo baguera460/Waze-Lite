@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import fr.isen.M1.Gomez.wazeliteski.Data.Slope
+import fr.isen.M1.Gomez.wazeliteski.database.DataBaseHelper
 
 class SlopeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,15 +30,15 @@ class SlopeActivity : ComponentActivity() {
             LazyColumn() {
 
             }
-            getDBData(slopes)
+            GetDBData(slopes)
         }
     }
 }
 
 
 @Composable
-fun getDBData(slopes: SnapshotStateList<Slope>) {
-    GetDBData.database.getReference("Slope")
+fun GetDBData(slopes: SnapshotStateList<Slope>) {
+    DataBaseHelper.database.getReference("Slope")
         .addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val listslopes = dataSnapshot.children.mapNotNull { it.getValue(Slope::class.java) }
