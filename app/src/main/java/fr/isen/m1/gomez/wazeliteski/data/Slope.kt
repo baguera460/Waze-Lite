@@ -6,6 +6,7 @@ data class Slope(
     val name: String = "",
     val color: Int = 0,
     var state : Boolean = true,
+    var index: Int = 0
 )
 
 enum class Level {

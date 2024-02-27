@@ -50,9 +50,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 import fr.isen.m1.gomez.wazeliteski.data.Level
 import fr.isen.m1.gomez.wazeliteski.data.Slope
 import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
@@ -95,13 +97,14 @@ fun TopBar() {
         title = {
             Text(
                 "Pistes", fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(30.dp),
             )
         }, colors = TopAppBarDefaults.smallTopAppBarColors(
             containerColor = Color(176, 196, 255)
         ), navigationIcon = {
             IconButton(onClick = {
-                val intent = Intent(context, MainActivity::class.java)
+                val intent = Intent(context, MenuActivity::class.java)
                 context.startActivity(intent)
             })
             {
@@ -117,10 +120,8 @@ fun TopBar() {
 fun SlopeRow(slope: Slope) {
     var col = Color.Black
     var colcontainer = Color(0, 0, 0)
-    var state = ""
     if (slope.state) col = Color(20, 200, 20) else col = Color(220, 20, 20)
     if (slope.state) colcontainer = Color(22, 164, 7) else colcontainer = Color(200, 20, 20)
-    if (slope.state) state = "Ouverte" else state = "Fermée"
     Row {
         TextButton(onClick = {/* val intent = Intent(context, Activity::class.java)
                 context.startActivity(intent) */
@@ -136,7 +137,9 @@ fun SlopeRow(slope: Slope) {
 
         }
         TextButton(
-            onClick = {/*TODO*/ },
+            onClick = {val newValue = !slope.state
+                Firebase.database.reference.child("slopes/${slope.index}/state").setValue(newValue)
+                slope.state = newValue },
             modifier = Modifier
                 .align(alignment = Alignment.CenterVertically)
                 .fillMaxWidth(),
@@ -145,7 +148,7 @@ fun SlopeRow(slope: Slope) {
             colors = ButtonDefaults.buttonColors(containerColor = colcontainer)
         ) {
             Text(
-                state,
+                if(slope.state) { "Ouverte" } else { "Fermée" },
                 color = Color.Black
             )
         }
@@ -153,18 +156,23 @@ fun SlopeRow(slope: Slope) {
     }
 }
 
+@Composable
 fun GetDBData(slopes: SnapshotStateList<Slope>) {
     DataBaseHelper.database.getReference("slopes")
-        .addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val listslopes =
-                    dataSnapshot.children.mapNotNull { it.getValue(Slope::class.java) }
-                Log.d("database", slopes.toString())
-                slopes.addAll(listslopes)
+        .addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                var index = 0
+                val fireBaseSlopes = snapshot.children.mapNotNull {
+                    val slope = it.getValue(Slope::class.java)
+                    slope?.index = index
+                    index += 1
+                    return@mapNotNull slope
+                }
+                slopes.removeAll { true }
+                slopes.addAll(fireBaseSlopes)
             }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.e("DB", databaseError.toString())
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("dataBase", error.toString())
             }
         })
 }
