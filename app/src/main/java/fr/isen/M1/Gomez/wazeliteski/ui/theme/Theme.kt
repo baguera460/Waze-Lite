@@ -1,4 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski.ui.theme
+package fr.isen.m1.gomez.wazeliteski.ui.theme
 
 import android.app.Activity
 import android.os.Build

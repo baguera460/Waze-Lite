@@ -1,4 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski
+package fr.isen.m1.gomez.wazeliteski
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,9 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import fr.isen.M1.Gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
+import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
 enum class SetupType {
     LOGIN, REGISTER;
@@ -47,9 +45,7 @@ class MainActivity : ComponentActivity(), SetupInterface {
 
         setContent {
             WazeLiteSkiTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainView(this)
@@ -65,9 +61,18 @@ class MainActivity : ComponentActivity(), SetupInterface {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainView(activity: SetupInterface) {
+    TopAppBar(title = {
+        Text(
+            text = "WazeLiteSki",
+            fontSize = 40.sp,
+            textAlign = TextAlign.Center
+        )
+    }, colors = TopAppBarDefaults.topAppBarColors(Color(0xFF6200EE)))
     Column(
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
