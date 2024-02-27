@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "fr.isen.M1.Gomez.wazeliteski"
+    namespace = "fr.isen.m1.gomez.wazeliteski"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "fr.isen.M1.Gomez.wazeliteski"
+        applicationId = "fr.isen.m1.gomez.wazeliteski"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
