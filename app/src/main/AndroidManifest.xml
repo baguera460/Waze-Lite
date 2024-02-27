@@ -17,6 +17,10 @@
         <activity
             android:name=".SlopeActivity"
             android:exported="false" />
+        <activity
+            android:name=".LiftActivity"
+            android:exported="false" />
+         
         <activity android:name=".MenuActivity"
             android:exported="false"/>
         <activity
