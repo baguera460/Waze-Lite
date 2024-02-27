@@ -16,6 +16,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.firebase.components.Component
@@ -56,8 +57,14 @@ class MenuActivity : ComponentActivity(),MenuInterface {
     }
 
     override fun locationPressed(location: LocationType) {
-        val intent = Intent(this, SlopeActivity::class.java)
-        startActivity(intent)
+        if (location == LocationType.SLOPES){
+            val intent = Intent(this, SlopeActivity::class.java)
+            startActivity(intent)
+        }else{
+            val intent = Intent(this, LiftActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
 
@@ -82,8 +89,10 @@ class MenuActivity : ComponentActivity(),MenuInterface {
 @Composable
 fun CustomButton(type: LocationType, menu: MenuInterface) {
     TextButton(onClick = { menu.locationPressed(type) }) {
-        Text(text = type.title() )
-        
+        Text(text = type.title(),
+            color = Color.Black
+        )
+
     }
 }
 
