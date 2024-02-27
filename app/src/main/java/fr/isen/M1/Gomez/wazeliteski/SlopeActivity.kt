@@ -36,7 +36,7 @@ class SlopeActivity : ComponentActivity() {
             ) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(slopes.toList()) {
-                        Text((it.color.toString()) + " " + (it.name?:""))
+                        Text((it.color) + " " + (it.name?:"") + " " + (it.state))
                     }
                 }
                 GetDBData(slopes)
