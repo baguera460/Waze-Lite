@@ -5,6 +5,6 @@ import com.google.firebase.ktx.Firebase
 
 class DataBaseHelper {
     companion object {
-        val database = Firebase.database("https://station-ski-default-rtdb.europe-west1.firebasedatabase.app/")
+        val database = Firebase.database("https://waze-lite-ski-default-rtdb.europe-west1.firebasedatabase.app/")
     }
 }
