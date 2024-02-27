@@ -31,7 +31,6 @@ import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 class SlopeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_slope)
         setContent {
             val slopes = remember {
                 mutableStateListOf<Slope>()
