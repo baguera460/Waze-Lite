@@ -36,11 +36,9 @@ class SlopeActivity : ComponentActivity() {
             ) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(slopes.toList()) {
-                        Text(it.name)
-                        Text(it.color.toString())
+                        Text((it.color.toString()) + " " + (it.name?:""))
                     }
                 }
-                Text("Test de fou")
                 GetDBData(slopes)
             }
         }
@@ -50,7 +48,7 @@ class SlopeActivity : ComponentActivity() {
 
 @Composable
 fun GetDBData(slopes: SnapshotStateList<Slope>) {
-    DataBaseHelper.database.getReference("Slope")
+    DataBaseHelper.database.getReference("slopes")
         .addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val listslopes = dataSnapshot.children.mapNotNull { it.getValue(Slope::class.java) }
