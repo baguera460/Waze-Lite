@@ -1,11 +1,9 @@
 package fr.isen.M1.Gomez.wazeliteski
 
-import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,11 +14,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import fr.isen.M1.Gomez.wazeliteski.Data.Slope
+import fr.isen.M1.Gomez.wazeliteski.data.Slope
 import fr.isen.M1.Gomez.wazeliteski.database.DataBaseHelper
 
 class SlopeActivity : ComponentActivity() {
@@ -32,11 +29,11 @@ class SlopeActivity : ComponentActivity() {
                 mutableStateListOf<Slope>()
             }
             Surface(
-                modifier = Modifier.fillMaxSize().background(Color.Green)
+                modifier = Modifier.fillMaxSize()
             ) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(slopes.toList()) {
-                        Text((it.color) + " " + (it.name?:"") + " " + (it.state))
+                        Text((it.color.toString()) + " " + (it.name?:"") + " " + (it.state))
                     }
                 }
                 GetDBData(slopes)
