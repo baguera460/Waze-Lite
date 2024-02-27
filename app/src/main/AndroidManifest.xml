@@ -25,10 +25,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SetupActivity"
+            android:name=".HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".ChoiceActivity"
+            android:name=".MailVerificationActivity"
             android:exported="false" />
     </application>
 

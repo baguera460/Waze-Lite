@@ -1,5 +1,6 @@
 package fr.isen.m1.gomez.wazeliteski
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,17 +14,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
-interface ChoiceInterface {
+interface HomeInterface {
     fun choiceChosen()
 }
 
-class ChoiceActivity: ComponentActivity(), ChoiceInterface {
+class HomeActivity: ComponentActivity(), HomeInterface {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,12 +40,13 @@ class ChoiceActivity: ComponentActivity(), ChoiceInterface {
 
     override fun choiceChosen() {
         Firebase.auth.signOut()
-        finish()
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 }
 
 @Composable
-fun ChoiceView(activity: ChoiceInterface) {
+fun ChoiceView(activity: HomeInterface) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
