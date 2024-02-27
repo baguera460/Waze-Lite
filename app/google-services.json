@@ -1,7 +1,7 @@
 {
   "project_info": {
     "project_number": "472034623985",
-    "firebase_url": "https://waze-lite-ski-default-rtdb.europe-west1.firebasedatabase.app",
+    "firebase_url": "https://waze-lite-ski-default-rtdb.europe-west1.firebasedatabase.app/",
     "project_id": "waze-lite-ski",
     "storage_bucket": "waze-lite-ski.appspot.com"
   },

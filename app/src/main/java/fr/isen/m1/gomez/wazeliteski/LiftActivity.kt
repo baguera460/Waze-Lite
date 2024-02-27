@@ -23,7 +23,6 @@ import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 class LiftActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_lift)
         setContent{
             val liftes = remember {
                 mutableStateListOf<Lift>()
