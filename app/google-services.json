@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "472034623985",
+    "firebase_url": "https://waze-lite-ski-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "waze-lite-ski",
+    "storage_bucket": "waze-lite-ski.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472034623985:android:5462a5bfd74fc2f6140450",
+        "android_client_info": {
+          "package_name": "fr.isen.M1.Gomez.wazeliteski"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "472034623985-umcgs6tbab4h0egb4d2q6q313dbij43l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyK_ksNdvfsfCj3a3SLhM8kH93oFXrQno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "472034623985-umcgs6tbab4h0egb4d2q6q313dbij43l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472034623985:android:887ceafb3484dc74140450",
+        "android_client_info": {
+          "package_name": "fr.isen.m1.gomez.wazeliteski"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "472034623985-umcgs6tbab4h0egb4d2q6q313dbij43l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyK_ksNdvfsfCj3a3SLhM8kH93oFXrQno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "472034623985-umcgs6tbab4h0egb4d2q6q313dbij43l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
