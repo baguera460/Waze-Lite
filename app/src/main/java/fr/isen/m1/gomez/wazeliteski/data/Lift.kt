@@ -1,4 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski.data
+package fr.isen.m1.gomez.wazeliteski.data
 
 
 data class Lift(

@@ -1,4 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski.database;
+package fr.isen.m1.gomez.wazeliteski.database;
 
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase

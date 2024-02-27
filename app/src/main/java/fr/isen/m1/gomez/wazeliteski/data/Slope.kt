@@ -1,6 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski.data
-
-import androidx.compose.ui.graphics.Color
+package fr.isen.m1.gomez.wazeliteski.data
 
 data class Slope(
     val name: String = "",

@@ -1,4 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski
+package fr.isen.m1.gomez.wazeliteski
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

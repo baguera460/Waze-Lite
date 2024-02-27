@@ -1,4 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski
+package fr.isen.m1.gomez.wazeliteski
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,16 +12,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import fr.isen.M1.Gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
-import com.google.firebase.database.*
-import androidx.compose.runtime.remember as remember
+import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
 class MainActivity : ComponentActivity() {/*
     val database = FirebaseDatabase.getInstance("https://waze-lite-ski-default-rtdb.europe-west1.firebasedatabase.app/")
@@ -39,7 +34,7 @@ class MainActivity : ComponentActivity() {/*
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-                    Greeting("Android")
+                    Greeting()
                     val context = LocalContext.current
                     val intent = Intent(context, SlopeActivity::class.java)
                     context.startActivity(intent)

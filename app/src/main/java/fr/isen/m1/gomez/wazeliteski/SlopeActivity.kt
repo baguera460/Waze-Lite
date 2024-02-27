@@ -1,4 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski
+package fr.isen.m1.gomez.wazeliteski
 
 import android.os.Bundle
 import android.util.Log
@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import fr.isen.M1.Gomez.wazeliteski.data.Slope
-import fr.isen.M1.Gomez.wazeliteski.database.DataBaseHelper
+import fr.isen.m1.gomez.wazeliteski.data.Slope
+import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 
 class SlopeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

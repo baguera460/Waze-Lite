@@ -1,4 +1,4 @@
-package fr.isen.M1.Gomez.wazeliteski
+package fr.isen.m1.gomez.wazeliteski
 
 import org.junit.Test
 
