@@ -6,8 +6,11 @@ import android.util.Log
 import android.widget.ActionMenuView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.google.firebase.components.Component
 import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
@@ -98,10 +102,18 @@ fun CustomButton(type: LocationType, menu: MenuInterface) {
 
 @Composable
 fun SetupView(menu: MenuInterface) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CustomButton(type = LocationType.LIFTS, menu = menu)
-        Divider()
-        CustomButton(type = LocationType.SLOPES, menu = menu)
+    WazeLiteSkiTheme {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            //verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            Spacer(modifier = Modifier.height(150.dp))
+            CustomButton(type = LocationType.LIFTS, menu = menu)
+            Spacer(modifier = Modifier.height(10.dp))
+            CustomButton(type = LocationType.SLOPES, menu = menu)
+        }
+
     }
 }
 
