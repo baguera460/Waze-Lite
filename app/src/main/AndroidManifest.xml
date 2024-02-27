@@ -17,6 +17,8 @@
         <activity
             android:name=".SlopeActivity"
             android:exported="false" />
+        <activity android:name=".MenuActivity"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
