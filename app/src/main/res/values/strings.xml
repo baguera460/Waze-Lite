@@ -8,4 +8,6 @@
     <string name="register">Register</string>
 
     <string name="lifts">Lifts</string>
+
+    <string name="default_web_client_id" translatable="false">472034623985-umcgs6tbab4h0egb4d2q6q313dbij43l.apps.googleusercontent.com</string>
 </resources>

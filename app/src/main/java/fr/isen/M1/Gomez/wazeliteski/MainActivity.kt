@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -335,7 +339,11 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
         }
         Divider(thickness = 20.dp, color = Color.White)
         Button(onClick = { activity.signInGoogle() }) {
-            Text(text = "Sign in with Google")
+            Image(
+                imageVector = ImageVector.vectorResource(id = R.drawable.google_logo),
+                contentDescription = "Google Logo",
+            )
+            Text(text = " Sign in with Google")
         }
     }
 }

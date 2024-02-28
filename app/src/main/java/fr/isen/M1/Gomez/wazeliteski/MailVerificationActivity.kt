@@ -97,7 +97,7 @@ fun MailVerificationView(activity: MailVerificationInterface, email: String) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "In order to proceed into the app, you need to verify your email address ($email)",
+            "Verify the email address $email",
             textAlign = TextAlign.Center,
             fontSize = 30.sp
         )
