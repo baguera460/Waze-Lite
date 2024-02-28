@@ -43,6 +43,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
@@ -93,6 +94,7 @@ class MainActivity : ComponentActivity(), MainInterface {
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
+        googleSignInClient.revokeAccess()
 
         val type = intent.getStringExtra("type")
             ?.let { AuthenticationType.valueOf(it) }
