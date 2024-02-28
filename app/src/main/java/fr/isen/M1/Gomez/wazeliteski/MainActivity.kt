@@ -197,7 +197,11 @@ class MainActivity : ComponentActivity(), MainInterface {
                         startActivity(intent)
                     } else {
                         Log.w("Register", "createUserWithEmail:failure", task.exception)
-                        Toast.makeText(this, "${task.exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this,
+                            "${task.exception?.localizedMessage}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
         } else {

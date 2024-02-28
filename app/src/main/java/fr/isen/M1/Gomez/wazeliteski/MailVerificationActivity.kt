@@ -1,11 +1,15 @@
 package fr.isen.m1.gomez.wazeliteski
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.core.os.postDelayed
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -34,6 +39,7 @@ interface MailVerificationInterface {
 class MailVerificationActivity : ComponentActivity(), MailVerificationInterface {
     private lateinit var auth: FirebaseAuth
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,21 +56,19 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
                     }
                 }
             }
+
+            val looper = Looper.getMainLooper()
+            val handler = Handler.createAsync(looper)
+            handler.postDelayed(3000) {
+                if (user.isEmailVerified) {
+                    val intent = Intent(this@MailVerificationActivity, MainActivity::class.java)
+                    startActivity(intent)
+                }
+            }
         } else {
             Toast.makeText(this, "No user found", Toast.LENGTH_SHORT).show()
             Log.e("MailVerificationActivity", "No user found")
             val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        val user = auth.currentUser!!
-        user.reload()
-        if (user.isEmailVerified) {
-            val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
         }
     }
