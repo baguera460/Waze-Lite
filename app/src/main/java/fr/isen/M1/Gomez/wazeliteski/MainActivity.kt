@@ -90,27 +90,31 @@ class MainActivity : ComponentActivity(), MainInterface {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
-        } else {
-            val type = intent.getStringExtra("type")
-                ?.let { AuthenticationType.valueOf(it) }
-                ?: AuthenticationType.LOGIN
+        val type = intent.getStringExtra("type")
+            ?.let { AuthenticationType.valueOf(it) }
+            ?: AuthenticationType.LOGIN
 
-            setContent {
-                WazeLiteSkiTheme {
-                    Surface(
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        SetupView(type, this)
-                    }
+        setContent {
+            WazeLiteSkiTheme {
+                Surface(
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    SetupView(type, this)
                 }
             }
         }
 
         Log.d("lifeCycle", "Menu Activity - OnCreate")
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun signInGoogle() {
@@ -135,12 +139,19 @@ class MainActivity : ComponentActivity(), MainInterface {
     }
 
     override fun loginAttempt(email: String, password: String) {
+        if (email.isEmpty() || password.isEmpty()) {
+            Log.w("Login", "Empty fields")
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+
+            return
+        }
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT).show()
                     val user = auth.currentUser!!
                     if (user.isEmailVerified) {
+                        Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT)
+                            .show()
                         val intent = Intent(this, HomeActivity::class.java)
                         startActivity(intent)
                     } else {
@@ -161,6 +172,12 @@ class MainActivity : ComponentActivity(), MainInterface {
         confirmPassword: String,
         phoneNumber: String
     ) {
+        if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phoneNumber.isEmpty()) {
+            Log.w("Login", "Empty fields")
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+
+            return
+        }
         if (password == confirmPassword) {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->

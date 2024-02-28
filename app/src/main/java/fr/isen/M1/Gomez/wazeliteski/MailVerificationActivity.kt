@@ -1,15 +1,11 @@
 package fr.isen.m1.gomez.wazeliteski
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,20 +22,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import androidx.core.os.postDelayed
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
 interface MailVerificationInterface {
     fun sendVerificationEmail()
+    fun signIn()
 }
 
 class MailVerificationActivity : ComponentActivity(), MailVerificationInterface {
     private lateinit var auth: FirebaseAuth
+    private lateinit var user: FirebaseUser
 
-    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -47,6 +44,7 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
         val user = auth.currentUser
 
         if (user != null) {
+            this.user = user
             setContent {
                 WazeLiteSkiTheme {
                     Surface(
@@ -54,15 +52,6 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
                     ) {
                         MailVerificationView(this, user.email!!)
                     }
-                }
-            }
-
-            val looper = Looper.getMainLooper()
-            val handler = Handler.createAsync(looper)
-            handler.postDelayed(3000) {
-                if (user.isEmailVerified) {
-                    val intent = Intent(this@MailVerificationActivity, MainActivity::class.java)
-                    startActivity(intent)
                 }
             }
         } else {
@@ -74,8 +63,7 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
     }
 
     override fun sendVerificationEmail() {
-        val user = auth.currentUser
-        user!!.sendEmailVerification()
+        user.sendEmailVerification()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Verification email sent", Toast.LENGTH_SHORT).show()
@@ -84,6 +72,12 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
                         .show()
                 }
             }
+    }
+
+    override fun signIn() {
+        auth.signOut()
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 }
 
@@ -109,6 +103,9 @@ fun MailVerificationView(activity: MailVerificationInterface, email: String) {
         )
         Button(onClick = { activity.sendVerificationEmail() }) {
             Text("Send verification email")
+        }
+        Button(onClick = { activity.signIn() }) {
+            Text("Sign In")
         }
     }
 }
