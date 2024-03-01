@@ -1,14 +1,15 @@
 package fr.isen.m1.gomez.wazeliteski.data
 
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import java.io.Serializable
 
 data class Slope(
     val name: String = "",
     val color: Int = 0,
-    var state : Boolean = true,
-    var index: Int = 0
+    var state: Boolean = true,
+    var index: Int = 0,
+    var end: Boolean = false,
+    var next: List<Int>? = null
 ) : Serializable
 
 enum class Level {
