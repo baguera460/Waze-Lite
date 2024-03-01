@@ -133,7 +133,7 @@ fun SetupView(menu: MenuInterface) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(25.dp)
-                ) {
+            ) {
                 Image(painterResource(id = R.drawable.waze_logo),null)
                 Text(
                     text = stringResource( R.string.app_name),
@@ -148,7 +148,7 @@ fun SetupView(menu: MenuInterface) {
                 TextButton(onClick = {})
                 {
                     Text(text = "Déconnection", color = Color(0,0,125), textDecoration = TextDecoration.Underline, fontStyle = FontStyle.Italic,
-                                fontSize = 10.sp)
+                        fontSize = 10.sp)
                 }
             }
 

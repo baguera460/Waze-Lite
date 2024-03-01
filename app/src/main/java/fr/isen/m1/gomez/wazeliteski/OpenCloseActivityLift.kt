@@ -72,22 +72,6 @@ fun OpenCloseActivityLift(lift: Lift, liftState: MutableState<Boolean>) {
     }
 }
 
-
-//fun updateLiftStateInFirebase(lift: Lift) {
-//    lift.index.let { liftIndex ->
-//        val liftId = liftIndex.toString()
-//        DataBaseHelper.database.getReference("liftes").child(liftId).child("state").setValue(lift.state)
-//
-//            .addOnSuccessListener {
-//                Log.d("Firebase", "Lift state updated successfully")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.e("Firebase", "Error updating lift state", e)
-//            }
-//    }
-//}
-
-
 fun updateLiftStateInFirebase(lift: Lift, newState: Boolean) {
     val liftId = lift.index.toString()
     DataBaseHelper.database.getReference("liftes").child(liftId).child("state").setValue(newState)

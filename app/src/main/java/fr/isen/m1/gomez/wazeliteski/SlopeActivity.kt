@@ -77,35 +77,6 @@ class SlopeActivity : ComponentActivity() {
     }
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopBar(myString : String, color: Color) {
-    val context = LocalContext.current
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                myString, fontSize = 25.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(30.dp),
-                color = if (color == Color.Black) Color(255, 255, 255) else Color.Black)
-        }, colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = color
-        ), navigationIcon = {
-            IconButton(onClick = {
-                val intent = Intent(context, MenuActivity::class.java)
-                context.startActivity(intent)
-            })
-            {
-                Icon(
-                    imageVector = Icons.Filled.Home, contentDescription = "Home" ,
-                    tint = if (color == Color.Black) Color(255, 255, 255) else Color.Black
-                )
-            }
-        }
-    )
-}
-
 @Composable
 fun SlopeRow(slope: Slope) {
     val context = LocalContext.current
