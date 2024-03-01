@@ -15,14 +15,20 @@
         android:theme="@style/Theme.WazeLiteSki"
         tools:targetApi="31">
         <activity
+            android:name=".SlopeLinkActivity"
+            android:exported="false" />
+        <activity
             android:name=".SlopeActivity"
             android:exported="true" />
         <activity
             android:name=".LiftActivity"
             android:exported="true" />
-         
-        <activity android:name=".MenuActivity"
-            android:exported="true"/>
+        <activity
+            android:name=".LiftLinkActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MenuActivity"
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
