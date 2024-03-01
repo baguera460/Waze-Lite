@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,19 +14,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,15 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -67,7 +56,7 @@ class SlopeActivity : ComponentActivity() {
                 mutableStateListOf<Slope>()
             }
             Column {
-                TopBar()
+                TopBar("Pistes", Color(176, 196, 255))
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -91,17 +80,17 @@ class SlopeActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar() {
+fun TopBar(myString : String, color: Color) {
     val context = LocalContext.current
     CenterAlignedTopAppBar(
         title = {
             Text(
-                "Pistes", fontSize = 30.sp,
+                myString, fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(30.dp),
-            )
+                color = if (color == Color.Black) Color(255, 255, 255) else Color.Black)
         }, colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = Color(176, 196, 255)
+            containerColor = color
         ), navigationIcon = {
             IconButton(onClick = {
                 val intent = Intent(context, MenuActivity::class.java)
@@ -109,7 +98,8 @@ fun TopBar() {
             })
             {
                 Icon(
-                    imageVector = Icons.Filled.Home, contentDescription = "Home"
+                    imageVector = Icons.Filled.Home, contentDescription = "Home" ,
+                    tint = if (color == Color.Black) Color(255, 255, 255) else Color.Black
                 )
             }
         }
@@ -119,14 +109,12 @@ fun TopBar() {
 @Composable
 fun SlopeRow(slope: Slope) {
     val context = LocalContext.current
-    var col = Color.Black
-    var colcontainer = Color(0, 0, 0)
-    if (slope.state) col = Color(20, 200, 20) else col = Color(220, 20, 20)
-    if (slope.state) colcontainer = Color(22, 164, 7) else colcontainer = Color(200, 20, 20)
+    val col: Color = if (slope.state) Color(20, 200, 20) else Color(220, 20, 20)
+    val container: Color = if (slope.state) Color(22, 164, 7) else Color(200, 20, 20)
     Row {
         TextButton(onClick = {
             val intent = Intent(context, SlopeLinkActivity::class.java)
-            intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, slope.name)
+            intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, slope)
             context.startActivity(intent)
         }) {
             Text(
@@ -148,7 +136,7 @@ fun SlopeRow(slope: Slope) {
                 .fillMaxWidth(),
             shape = CircleShape,
             border = BorderStroke(2.dp, col),
-            colors = ButtonDefaults.buttonColors(containerColor = colcontainer)
+            colors = ButtonDefaults.buttonColors(containerColor = container)
         ) {
             Text(
                 if(slope.state) { "Ouverte" } else { "Fermée" },
