@@ -10,17 +10,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,7 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -62,8 +66,8 @@ interface MainInterface {
         confirmPassword: String,
         phoneNumber: String
     )
-
     fun changeAuthenticationActivity(type: AuthenticationType)
+    fun resetPassword()
 }
 
 class MainActivity : ComponentActivity(), MainInterface {
@@ -107,8 +111,6 @@ class MainActivity : ComponentActivity(), MainInterface {
                 }
             }
         }
-
-        Log.d("lifeCycle", "Menu Activity - OnCreate")
     }
 
     override fun onStart() {
@@ -117,6 +119,7 @@ class MainActivity : ComponentActivity(), MainInterface {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             val intent = Intent(this, HomeActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         }
     }
@@ -134,6 +137,7 @@ class MainActivity : ComponentActivity(), MainInterface {
                     Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, HomeActivity::class.java)
                     intent.putExtra("account", account)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     startActivity(intent)
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", it.exception)
@@ -157,10 +161,12 @@ class MainActivity : ComponentActivity(), MainInterface {
                         Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT)
                             .show()
                         val intent = Intent(this, HomeActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         startActivity(intent)
                     } else {
                         Toast.makeText(this, "Email not verified", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this, MailVerificationActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         startActivity(intent)
                     }
                 } else {
@@ -209,7 +215,6 @@ class MainActivity : ComponentActivity(), MainInterface {
                         val userInformation = HashMap<String, String>(
                             mapOf(
                                 "mail" to email,
-                                "password" to password,
                                 "phone" to phoneNumber
                             )
                         )
@@ -236,6 +241,11 @@ class MainActivity : ComponentActivity(), MainInterface {
         intent.putExtra("type", type.name)
         startActivity(intent)
     }
+
+    override fun resetPassword() {
+        val intent = Intent(this, PasswordResetActivity::class.java)
+        startActivity(intent)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -246,52 +256,61 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
     var confirmPassword by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
 
-    TopAppBar(title = {
-        Text(
-            text = "WazeLiteSki",
-            fontSize = 40.sp,
-            textAlign = TextAlign.Center
-        )
-    }, colors = TopAppBarDefaults.topAppBarColors(Color(0xFF6200EE)))
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = "WazeLiteSki",
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontSize = 40.sp
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer),
+        modifier = Modifier
+            .clip(
+                shape = RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp),
+            )
+    )
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (type == AuthenticationType.REGISTER) {
-            Text(text = "Sign up", textAlign = TextAlign.Center, fontSize = 50.sp)
-        } else {
-            Text(text = "Sign in", textAlign = TextAlign.Center, fontSize = 50.sp)
-        }
-        Divider(thickness = 20.dp, color = Color.White)
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Email,
-                autoCorrect = false
+            Text(
+                text = "Sign up",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 30.sp
             )
-        )
-        Divider(thickness = 10.dp, color = Color.White)
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Password,
-                autoCorrect = false,
-            ),
-            visualTransformation = PasswordVisualTransformation(mask = '•')
-        )
-        if (type == AuthenticationType.REGISTER) {
-            Divider(thickness = 10.dp, color = Color.White)
+        } else {
+            Text(
+                text = "Sign in",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 30.sp
+            )
+        }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             TextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Email,
+                    autoCorrect = false
+                )
+            )
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Password,
@@ -299,45 +318,61 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
                 ),
                 visualTransformation = PasswordVisualTransformation(mask = '•')
             )
-            Divider(thickness = 10.dp, color = Color.White)
-            TextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
-                label = { Text("Phone Number") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Phone,
-                    autoCorrect = false
+            if (type == AuthenticationType.REGISTER) {
+                TextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirm Password") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Password,
+                        autoCorrect = false,
+                    ),
+                    visualTransformation = PasswordVisualTransformation(mask = '•')
                 )
-            )
-        }
-        Divider(thickness = 10.dp, color = Color.White)
-        if (type == AuthenticationType.REGISTER) {
-            Button(onClick = {
-                activity.registerAttempt(
-                    email,
-                    password,
-                    confirmPassword,
-                    phoneNumber
+                TextField(
+                    value = phoneNumber,
+                    onValueChange = { phoneNumber = it },
+                    label = { Text("Phone Number") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Phone,
+                        autoCorrect = false
+                    )
                 )
-            }) {
-                Text(text = "Sign up")
             }
-            Text(text = "or", fontSize = 20.sp)
-            Button(onClick = { activity.changeAuthenticationActivity(AuthenticationType.LOGIN) }) {
-                Text(text = "Sign in")
-            }
-        } else {
-            Button(onClick = { activity.loginAttempt(email, password) }) {
-                Text(text = "Sign in")
-
-            }
-            Text(text = "or", fontSize = 20.sp)
-            Button(onClick = { activity.changeAuthenticationActivity(AuthenticationType.REGISTER) }) {
-                Text(text = "Sign up")
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (type == AuthenticationType.REGISTER) {
+                    Button(onClick = {
+                        activity.registerAttempt(
+                            email,
+                            password,
+                            confirmPassword,
+                            phoneNumber
+                        )
+                    }) {
+                        Text(text = "Sign up")
+                    }
+                    Text(text = "or", fontSize = 20.sp)
+                    Button(onClick = { activity.changeAuthenticationActivity(AuthenticationType.LOGIN) }) {
+                        Text(text = "Sign in")
+                    }
+                } else {
+                    Button(onClick = { activity.loginAttempt(email, password) }) {
+                        Text(text = "Sign in")
+                    }
+                    Text(text = "or", fontSize = 20.sp)
+                    Button(onClick = { activity.changeAuthenticationActivity(AuthenticationType.REGISTER) }) {
+                        Text(text = "Sign up")
+                    }
+                    TextButton(onClick = { activity.resetPassword() }) {
+                        Text(text = "Forgot your password?")
+                    }
+                }
             }
         }
-        Divider(thickness = 20.dp, color = Color.White)
         Button(onClick = { activity.signInGoogle() }) {
             Image(
                 imageVector = ImageVector.vectorResource(id = R.drawable.google_logo),
@@ -345,5 +380,20 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
             )
             Text(text = " Sign in with Google")
         }
+    }
+    Box(
+        Modifier.fillMaxSize(),
+        Alignment.BottomCenter
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+
+            },
+            colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer),
+            modifier = Modifier
+                .clip(
+                    shape = RoundedCornerShape(20.dp, 20.dp, 0.dp, 0.dp),
+                )
+        )
     }
 }
