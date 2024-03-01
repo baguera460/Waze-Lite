@@ -1,5 +1,6 @@
 package fr.isen.m1.gomez.wazeliteski.data
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 
 data class Slope(

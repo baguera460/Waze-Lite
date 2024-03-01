@@ -118,13 +118,16 @@ fun TopBar() {
 
 @Composable
 fun SlopeRow(slope: Slope) {
+    val context = LocalContext.current
     var col = Color.Black
     var colcontainer = Color(0, 0, 0)
     if (slope.state) col = Color(20, 200, 20) else col = Color(220, 20, 20)
     if (slope.state) colcontainer = Color(22, 164, 7) else colcontainer = Color(200, 20, 20)
     Row {
-        TextButton(onClick = {/* val intent = Intent(context, Activity::class.java)
-                context.startActivity(intent) */
+        TextButton(onClick = {
+            val intent = Intent(context, SlopeLinkActivity::class.java)
+            intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, slope.name)
+            context.startActivity(intent)
         }) {
             Text(
                 "  " + slope.name,
