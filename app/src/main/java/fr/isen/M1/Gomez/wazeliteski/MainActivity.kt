@@ -66,8 +66,6 @@ interface MainInterface {
         confirmPassword: String,
         phoneNumber: String
     )
-    fun changeAuthenticationActivity(type: AuthenticationType)
-    fun resetPassword()
 }
 
 class MainActivity : ComponentActivity(), MainInterface {
@@ -107,7 +105,7 @@ class MainActivity : ComponentActivity(), MainInterface {
                 Surface(
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SetupView(type, this)
+                    MainView(type, this)
                 }
             }
         }
@@ -118,9 +116,11 @@ class MainActivity : ComponentActivity(), MainInterface {
 
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
+            ActivityHelper.goToActivity(
+                this,
+                HomeActivity::class.java,
+                Intent.FLAG_ACTIVITY_CLEAR_TOP
+            )
         }
     }
 
@@ -135,10 +135,16 @@ class MainActivity : ComponentActivity(), MainInterface {
             .addOnCompleteListener(this) {
                 if (it.isSuccessful) {
                     Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, HomeActivity::class.java)
-                    intent.putExtra("account", account)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    startActivity(intent)
+                    ActivityHelper.goToActivity(
+                        this,
+                        HomeActivity::class.java,
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP,
+                        HashMap(
+                            mapOf(
+                                "account" to account
+                            )
+                        )
+                    )
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", it.exception)
                     Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT).show()
@@ -160,14 +166,18 @@ class MainActivity : ComponentActivity(), MainInterface {
                     if (user.isEmailVerified) {
                         Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT)
                             .show()
-                        val intent = Intent(this, HomeActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(intent)
+                        ActivityHelper.goToActivity(
+                            this,
+                            HomeActivity::class.java,
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        )
                     } else {
                         Toast.makeText(this, "Email not verified", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this, MailVerificationActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(intent)
+                        ActivityHelper.goToActivity(
+                            this,
+                            MailVerificationActivity::class.java,
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        )
                     }
                 } else {
                     Log.w("Login", "signInWithEmail:failure", task.exception)
@@ -219,8 +229,11 @@ class MainActivity : ComponentActivity(), MainInterface {
                             )
                         )
                         userTable.child(user.uid).setValue(userInformation)
-                        val intent = Intent(this, MailVerificationActivity::class.java)
-                        startActivity(intent)
+
+                        ActivityHelper.goToActivity(
+                            this,
+                            MailVerificationActivity::class.java,
+                        )
                     } else {
                         Log.w("Register", "createUserWithEmail:failure", task.exception)
                         Toast.makeText(
@@ -235,22 +248,11 @@ class MainActivity : ComponentActivity(), MainInterface {
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
         }
     }
-
-    override fun changeAuthenticationActivity(type: AuthenticationType) {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("type", type.name)
-        startActivity(intent)
-    }
-
-    override fun resetPassword() {
-        val intent = Intent(this, PasswordResetActivity::class.java)
-        startActivity(intent)
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetupView(type: AuthenticationType, activity: MainInterface) {
+fun MainView(type: AuthenticationType, activity: MainActivity) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -356,7 +358,17 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
                         Text(text = "Sign up")
                     }
                     Text(text = "or", fontSize = 20.sp)
-                    Button(onClick = { activity.changeAuthenticationActivity(AuthenticationType.LOGIN) }) {
+                    Button(onClick = {
+                        ActivityHelper.goToActivity(
+                            activity,
+                            activity::class.java,
+                            extras = HashMap(
+                                mapOf(
+                                    "type" to AuthenticationType.LOGIN.name
+                                )
+                            )
+                        )
+                    }) {
                         Text(text = "Sign in")
                     }
                 } else {
@@ -364,10 +376,25 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
                         Text(text = "Sign in")
                     }
                     Text(text = "or", fontSize = 20.sp)
-                    Button(onClick = { activity.changeAuthenticationActivity(AuthenticationType.REGISTER) }) {
+                    Button(onClick = {
+                        ActivityHelper.goToActivity(
+                            activity,
+                            activity::class.java,
+                            extras = HashMap(
+                                mapOf(
+                                    "type" to AuthenticationType.REGISTER.name
+                                )
+                            )
+                        )
+                    }) {
                         Text(text = "Sign up")
                     }
-                    TextButton(onClick = { activity.resetPassword() }) {
+                    TextButton(onClick = {
+                        ActivityHelper.goToActivity(
+                            activity,
+                            PasswordResetActivity::class.java
+                        )
+                    }) {
                         Text(text = "Forgot your password?")
                     }
                 }

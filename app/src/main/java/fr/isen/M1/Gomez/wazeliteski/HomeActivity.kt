@@ -1,6 +1,5 @@
 package fr.isen.m1.gomez.wazeliteski
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,15 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
-interface HomeInterface {
-    fun choiceChosen()
-}
-
-class HomeActivity : ComponentActivity(), HomeInterface {
+class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -45,17 +38,11 @@ class HomeActivity : ComponentActivity(), HomeInterface {
             }
         }
     }
-
-    override fun choiceChosen() {
-        Firebase.auth.signOut()
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChoiceView(activity: HomeInterface) {
+fun ChoiceView(activity: HomeActivity) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -76,8 +63,12 @@ fun ChoiceView(activity: HomeInterface) {
         verticalArrangement = Arrangement.Center
     ) {
         Text("You are signed in")
-        Button(onClick = { activity.choiceChosen() }) {
+        Button(onClick = { ActivityHelper.signOut(activity) }) {
             Text("Sign out")
+        }
+        Text(text = "or")
+        Button(onClick = { ActivityHelper.goToActivity(activity, ChatActivity::class.java) }) {
+            Text("Chat")
         }
     }
     Box(

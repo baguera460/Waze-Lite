@@ -34,6 +34,12 @@
         <activity
             android:name=".PasswordResetActivity"
             android:exported="false" />
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChatRoomActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -15,9 +15,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -73,9 +77,7 @@ class PasswordResetActivity : ComponentActivity(), PasswordResetInterface {
                 if (task.isSuccessful) {
                     Log.d("PasswordModificationActivity", "Email sent.")
                     Toast.makeText(this, "Email sent.", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    startActivity(intent)
+                    ActivityHelper.goToActivity(this, MainActivity::class.java, Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 } else {
                     Log.d("PasswordModificationActivity", "Email not sent.")
                     Toast.makeText(this, "Email not sent.", Toast.LENGTH_SHORT).show()
@@ -86,7 +88,7 @@ class PasswordResetActivity : ComponentActivity(), PasswordResetInterface {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordResetView(activity: PasswordResetInterface) {
+fun PasswordResetView(activity: PasswordResetActivity) {
     var email by remember { mutableStateOf("") }
 
     CenterAlignedTopAppBar(
@@ -101,7 +103,15 @@ fun PasswordResetView(activity: PasswordResetInterface) {
         modifier = Modifier
             .clip(
                 shape = RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp),
-            )
+            ),
+        navigationIcon = {
+            IconButton(onClick = { ActivityHelper.goBack(activity) }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+        }
     )
     Column(
         modifier = Modifier

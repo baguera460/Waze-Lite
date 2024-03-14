@@ -35,7 +35,6 @@ import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
 interface MailVerificationInterface {
     fun sendVerificationEmail()
-    fun signIn()
 }
 
 class MailVerificationActivity : ComponentActivity(), MailVerificationInterface {
@@ -75,17 +74,11 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
                 }
             }
     }
-
-    override fun signIn() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MailVerificationView(activity: MailVerificationInterface, email: String) {
+fun MailVerificationView(activity: MailVerificationActivity, email: String) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -127,7 +120,7 @@ fun MailVerificationView(activity: MailVerificationInterface, email: String) {
         }
         Button(
             modifier = Modifier.fillMaxWidth(3 / 4f),
-            onClick = { activity.signIn() }
+            onClick = { ActivityHelper.goToActivity(activity, MainActivity::class.java, Intent.FLAG_ACTIVITY_CLEAR_TOP) }
         ) {
             Text("Sign In")
         }
