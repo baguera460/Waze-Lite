@@ -11,18 +11,28 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -91,11 +101,38 @@ fun LinkView(slope: Slope?) {
                     fontSize = 20.sp
                 )
             }
+            Divider(color = Color.Black)
             val nexts = slope?.next
             if (nexts != null) {
                 for (i: Int in nexts)
                     GetNextSlopes(index = i, slopes)
             }
+            if (slope?.end == true || slope?.next?.isEmpty() == null)
+                Row(Modifier.padding(0.dp, 15.dp)) {
+                    if (slope?.end == true && slope.next?.isEmpty() == null)
+                        Image(
+                            painterResource(id = R.drawable.end_slope), null,
+                            Modifier
+                                .size(50.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                        )
+                    if (slope?.end == true && slope.next?.isEmpty() == null)
+                        Text(
+                            text =  "Fin de piste",
+                            Modifier.padding(7.dp, 12.dp),
+                            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            style = TextStyle(textDecoration = TextDecoration.Underline)
+                        )
+                    else if (slope?.end == true)
+                        Text(
+                            text = "Possible de terminer la descente sur cette piste",
+                            Modifier.padding(0.dp, 7.dp),
+                            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.ExtraBold)
+                }
             if (isparticular(slope)) {
                 Row(Modifier.padding(2.dp, 20.dp)) {
                     ParticularSlope(slope = slope)
@@ -114,7 +151,11 @@ fun LinkView(slope: Slope?) {
                     )
                 }
                 for (s: Slope in slopes) {
-                    Divider(color = Color.Black, thickness = 0.5.dp)
+                    Divider(color = Color.Black,
+                        modifier = Modifier
+                            .width(80.dp)
+                            .height(2.dp)
+                            .align(Alignment.CenterHorizontally))
                     TextButton(
                         onClick = {
                             val intent = Intent(context, SlopeLinkActivity::class.java)
@@ -124,39 +165,18 @@ fun LinkView(slope: Slope?) {
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                     {
-                        Text(s.name, color = (Level.from(s.color)).colorId())
+                        Text(s.name,
+                            fontSize = 15.sp,
+                            color = (Level.from(s.color)).colorId())
                     }
                 }
-                Divider(color = Color.Black, thickness = 0.5.dp)
+                Divider(color = Color.Black,
+                    modifier = Modifier
+                        .width(80.dp)
+                        .height(2.dp)
+                        .align(Alignment.CenterHorizontally))
 
             }
-            if (slope?.end == true || slope?.next?.isEmpty() == null)
-                Row(Modifier.padding(0.dp, 22.dp)) {
-                    if (slope?.end == true && slope.next?.isEmpty() == null)
-                        Image(
-                            painterResource(id = R.drawable.end_slope), null,
-                            Modifier
-                                .size(50.dp)
-                                .clip(RoundedCornerShape(20.dp))
-                        )
-                    if (slope?.end == true && slope.next?.isEmpty() == null)
-                    Text(
-                        text =  "Fin de piste",
-                        Modifier.padding(7.dp, 12.dp),
-                        fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        style = TextStyle(textDecoration = TextDecoration.Underline)
-                    )
-                    else if (slope?.end == true)
-                    Text(
-                        text = "Possible de terminer la descente sur cette piste",
-                        Modifier.padding(0.dp, 12.dp),
-                        fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.ExtraBold)
-
-                }
             TextButton(
                 onClick = { /*TODO*/ },
                 modifier = Modifier
@@ -168,6 +188,18 @@ fun LinkView(slope: Slope?) {
             Row {
                 Text("Liste commentaires\nAfficher plus")
             }
+            var text by remember {
+                mutableStateOf("")
+            }
+            TextField(
+                value = text, onValueChange = { text = it },
+                label = {Text("Laisser un commentaire")},
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(200,200,200),
+                    unfocusedContainerColor = Color(200,200,200),
+                    unfocusedLabelColor = Color(155,155,155)
+                )
+            )
         }
     }
 }
@@ -176,37 +208,79 @@ fun LinkView(slope: Slope?) {
 @Composable
 fun ParticularSlope(slope: Slope?) {
     if (slope?.name == "Le forest") {
-        Text(
-            "Attention ! \nSi vous provenez de la piste \"Bouticari vert\",\n" +
-                    "Vous arriverez à la fin de la piste \"Le forest\"",
-            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-        )
+        Column {
+            Text("Attention :",
+                style = TextStyle(textDecoration = TextDecoration.Underline,
+                    color = Color.Red)
+            )
+            Text(
+                "Si vous provenez de la piste \"Bouticari vert\",\n" +
+                        "Vous arriverez à la fin de la piste \"Le forest\" !",
+                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
+            )
+        }
     }
     if (slope?.name == "Les jockeys")
-        Text(
-            "Attention ! \nSi vous provenez de la piste  \"Les chamois\",\n" +
-                    "Vous arriverez à la fin de la piste \"Les jockeys\"",
-            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-        )
+        Column {
+            Text(
+                "Attention :",
+                style = TextStyle(
+                    textDecoration = TextDecoration.Underline,
+                    color = Color.Red
+                )
+            )
+            Text(
+                "Attention : \nSi vous provenez de la piste  \"Les chamois\",\n" +
+                        "Vous arriverez à la fin de la piste \"Les jockeys\" !",
+                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
+            )
+        }
     if (slope?.name == "Pré méan")
-        Text(
-            "Attention ! \nSi vous provenez de la piste \"Le gourq\",\n" +
-                    "Vous arriverez à la fin de la piste \"Pré méan\"",
-            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-        )
+        Column {
+            Text(
+                "Attention :",
+                style = TextStyle(
+                    textDecoration = TextDecoration.Underline,
+                    color = Color.Red
+                )
+            )
+            Text(
+                "Attention ! :\nSi vous provenez de la piste \"Le gourq\",\n" +
+                        "Vous arriverez à la fin de la piste \"Pré méan\" !",
+                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
+            )
+        }
     if (slope?.name == "Le gourq")
-        Text(
-            "Attention ! \nSi vous provenez de la piste \"La mandarine\",\n" +
-                    "Vous ne pourrez pas rejoindre la piste \"La mandarine\"",
-            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-        )
+        Column {
+            Text(
+                "Attention :",
+                style = TextStyle(
+                    textDecoration = TextDecoration.Underline,
+                    color = Color.Red
+                )
+            )
+            Text(
+                "Attention ! : \nSi vous provenez de la piste \"La mandarine\",\n" +
+                        "Vous ne pourrez pas rejoindre la piste \"La mandarine\" !",
+                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
+            )
+        }
     if (slope?.name == "Les lampions")
-        Text(
-            "Attention ! \nSi vous provenez de la piste \"La mandarine\",\n" +
-                    "Vous ne pourrez rejoindre que les pistes \"Le S du chamois\"," +
-                    "\" Les jockeys \" ou \" Le chamois \"",
-            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-        )
+        Column {
+            Text(
+                "Attention :",
+                style = TextStyle(
+                    textDecoration = TextDecoration.Underline,
+                    color = Color.Red
+                )
+            )
+            Text(
+                "Attention : \nSi vous provenez de la piste \"La mandarine\",\n" +
+                        "Vous ne pourrez rejoindre que les pistes \"Le S du chamois\"," +
+                        "\" Les jockeys \" ou \" Le chamois \" !",
+                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
+            )
+        }
 }
 
 fun isparticular(slope: Slope?): Boolean {
