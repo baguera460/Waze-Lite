@@ -92,9 +92,11 @@ fun SlopeRow(slope: Slope) {
 
         }
         TextButton(
-            onClick = {val newValue = !slope.state
+            onClick = {
+                val newValue = !slope.state
                 Firebase.database.reference.child("slopes/${slope.index}/state").setValue(newValue)
-                slope.state = newValue },
+                slope.state = newValue
+            },
             modifier = Modifier
                 .align(alignment = Alignment.CenterVertically)
                 .fillMaxWidth(),
@@ -103,7 +105,11 @@ fun SlopeRow(slope: Slope) {
             colors = ButtonDefaults.buttonColors(containerColor = container)
         ) {
             Text(
-                if(slope.state) { "Ouverte" } else { "Fermée" },
+                if (slope.state) {
+                    "Ouverte"
+                } else {
+                    "Fermée"
+                },
                 color = Color.Black
             )
         }
@@ -126,6 +132,7 @@ fun GetDBData(slopes: SnapshotStateList<Slope>) {
                 slopes.removeAll { true }
                 slopes.addAll(fireBaseSlopes)
             }
+
             override fun onCancelled(error: DatabaseError) {
                 Log.e("dataBase", error.toString())
             }

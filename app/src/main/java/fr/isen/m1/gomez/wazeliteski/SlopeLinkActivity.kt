@@ -10,22 +10,28 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Divider
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,6 +39,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +57,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import fr.isen.m1.gomez.wazeliteski.data.Level
+import fr.isen.m1.gomez.wazeliteski.data.OpinionSlope
 import fr.isen.m1.gomez.wazeliteski.data.Slope
 import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 
@@ -78,14 +86,13 @@ fun LinkView(slope: Slope?) {
     val color: Color? = (slope?.color?.let { Level.from(it) })?.colorId()
     val colorstate: Color = if (slope?.state == true) Color(20, 200, 20) else Color(220, 20, 20)
     val state: String = if (slope?.state == true) "ouverte" else "fermée"
-    Column {
+    Column{
         if (color != null) {
             TopBar("Desservissement ${slope.name}", color)
         }
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .fillMaxHeight()
                 .background(Color(176, 196, 222))
         ) {
             Row(modifier = Modifier.padding(5.dp, 10.dp)) {
@@ -177,29 +184,60 @@ fun LinkView(slope: Slope?) {
                         .align(Alignment.CenterHorizontally))
 
             }
-            TextButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(0.dp, 30.dp)
-            ) {
-                Text("Laisser un commentaire")
-            }
-            Row {
-                Text("Liste commentaires\nAfficher plus")
-            }
+            Row(Modifier.padding(0.dp, 40.dp)){}
             var text by remember {
                 mutableStateOf("")
             }
-            TextField(
-                value = text, onValueChange = { text = it },
-                label = {Text("Laisser un commentaire")},
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(200,200,200),
-                    unfocusedContainerColor = Color(200,200,200),
-                    unfocusedLabelColor = Color(155,155,155)
+            Row (Modifier.padding(0.dp, 5.dp)){
+
+                TextField(
+                    value = text, onValueChange = { text = it },
+                    label = { Text("Laisser un commentaire") },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(200, 200, 200),
+                        unfocusedContainerColor = Color(200, 200, 200),
+                        unfocusedLabelColor = Color(155, 155, 155)
+                    ),
+                    modifier = Modifier.width(300.dp)
                 )
-            )
+                IconButton(onClick = { //TODO
+                }){
+                Icon(imageVector = Icons.Filled.Send, contentDescription = "Send",
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .size(30.dp))
+                }
+            }
+
+            val opinions_slope = remember {
+                mutableStateListOf<OpinionSlope>()
+            }
+            Row (
+                Modifier
+                    .background(Color(200, 200, 200))
+                    .fillMaxWidth()
+                    .padding(0.dp, 10.dp)){
+                Text("Commentaires récents", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+            LazyColumn() {
+                items(opinions_slope.toList()) {
+                    Column(
+                        Modifier
+                            .background(Color(200, 200, 200))
+                            .fillMaxWidth()
+                    ) {
+                        if (it.slope == slope?.name) {
+                            Text("De " + it.user,
+                                fontSize = 16.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(it.comment)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+            }
+            GetOpinionSlope(opinions_slope)
+            //Text("Afficher plus")
         }
     }
 }
@@ -295,7 +333,6 @@ fun GetNextSlopes(index: Int?, slopes: MutableList<Slope>) {
         override fun onDataChange(snapshot: DataSnapshot) {
             val slope = snapshot.getValue(Slope::class.java)
             if (slope != null && !slopes.contains(slope)) {
-                println("Slope ${index}: color=${slope.color}, name=${slope.name}")
                 slopes.add(slope)
             }
         }
@@ -304,4 +341,25 @@ fun GetNextSlopes(index: Int?, slopes: MutableList<Slope>) {
             Log.e("dataBase", error.toString())
         }
     })
+}
+
+fun GetOpinionSlope(opinions: SnapshotStateList<OpinionSlope>) {
+    DataBaseHelper.database.getReference("opinion_slope")
+        .addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                var index = 0
+                val fireBaseOpinions = snapshot.children.mapNotNull {
+                    val opinion = it.getValue(OpinionSlope::class.java)
+                    opinion?.index = index
+                    index += 1
+                    return@mapNotNull opinion
+                }
+                opinions.removeAll { true }
+                opinions.addAll(fireBaseOpinions)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("dataBase", error.toString())
+            }
+        })
 }
