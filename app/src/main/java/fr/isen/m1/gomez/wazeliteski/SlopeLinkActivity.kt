@@ -86,13 +86,14 @@ fun LinkView(slope: Slope?) {
     val color: Color? = (slope?.color?.let { Level.from(it) })?.colorId()
     val colorstate: Color = if (slope?.state == true) Color(20, 200, 20) else Color(220, 20, 20)
     val state: String = if (slope?.state == true) "ouverte" else "fermée"
-    Column{
+    Column {
         if (color != null) {
             TopBar("Desservissement ${slope.name}", color)
         }
         Column(
             modifier = Modifier
                 .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
                 .background(Color(176, 196, 222))
         ) {
             Row(modifier = Modifier.padding(5.dp, 10.dp)) {
@@ -125,7 +126,7 @@ fun LinkView(slope: Slope?) {
                         )
                     if (slope?.end == true && slope.next?.isEmpty() == null)
                         Text(
-                            text =  "Fin de piste",
+                            text = "Fin de piste",
                             Modifier.padding(7.dp, 12.dp),
                             fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
                             fontSize = 18.sp,
@@ -138,7 +139,8 @@ fun LinkView(slope: Slope?) {
                             Modifier.padding(0.dp, 7.dp),
                             fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.ExtraBold)
+                            fontWeight = FontWeight.ExtraBold
+                        )
                 }
             if (isparticular(slope)) {
                 Row(Modifier.padding(2.dp, 20.dp)) {
@@ -158,11 +160,13 @@ fun LinkView(slope: Slope?) {
                     )
                 }
                 for (s: Slope in slopes) {
-                    Divider(color = Color.Black,
+                    Divider(
+                        color = Color.Black,
                         modifier = Modifier
                             .width(80.dp)
                             .height(2.dp)
-                            .align(Alignment.CenterHorizontally))
+                            .align(Alignment.CenterHorizontally)
+                    )
                     TextButton(
                         onClick = {
                             val intent = Intent(context, SlopeLinkActivity::class.java)
@@ -172,23 +176,27 @@ fun LinkView(slope: Slope?) {
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                     {
-                        Text(s.name,
+                        Text(
+                            s.name,
                             fontSize = 15.sp,
-                            color = (Level.from(s.color)).colorId())
+                            color = (Level.from(s.color)).colorId()
+                        )
                     }
                 }
-                Divider(color = Color.Black,
+                Divider(
+                    color = Color.Black,
                     modifier = Modifier
                         .width(80.dp)
                         .height(2.dp)
-                        .align(Alignment.CenterHorizontally))
+                        .align(Alignment.CenterHorizontally)
+                )
 
             }
-            Row(Modifier.padding(0.dp, 40.dp)){}
+            Row(Modifier.padding(0.dp, 40.dp)) {}
             var text by remember {
                 mutableStateOf("")
             }
-            Row (Modifier.padding(0.dp, 5.dp)){
+            Row(Modifier.padding(0.dp, 5.dp)) {
 
                 TextField(
                     value = text, onValueChange = { text = it },
@@ -201,41 +209,56 @@ fun LinkView(slope: Slope?) {
                     modifier = Modifier.width(300.dp)
                 )
                 IconButton(onClick = { //TODO
-                }){
-                Icon(imageVector = Icons.Filled.Send, contentDescription = "Send",
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .size(30.dp))
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Send, contentDescription = "Send",
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .size(30.dp)
+                    )
                 }
             }
 
             val opinions_slope = remember {
                 mutableStateListOf<OpinionSlope>()
             }
-            Row (
+            var pres = 0
+            for (op: OpinionSlope in opinions_slope.toList()) {
+                if(op.slope == slope?.name)
+                    pres = 1
+            }
+                Row(
                 Modifier
                     .background(Color(200, 200, 200))
                     .fillMaxWidth()
-                    .padding(0.dp, 10.dp)){
-                Text("Commentaires récents", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    .padding(0.dp, 10.dp)
+            ) {
+                    if(pres == 1)
+                        Text("Commentaires récents", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    else
+                        Text("C'est calme ici...", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
-            LazyColumn() {
-                items(opinions_slope.toList()) {
+
+            Column() {
+                for (op: OpinionSlope in opinions_slope.toList()) {
                     Column(
                         Modifier
                             .background(Color(200, 200, 200))
                             .fillMaxWidth()
                     ) {
-                        if (it.slope == slope?.name) {
-                            Text("De " + it.user,
-                                fontSize = 16.sp)
+                        if (op.slope == slope?.name) {
+                            Text(
+                                "De " + op.user,
+                                fontSize = 16.sp
+                            )
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text(it.comment)
+                            Text(op.comment)
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
                 }
             }
+
             GetOpinionSlope(opinions_slope)
             //Text("Afficher plus")
         }
@@ -247,9 +270,12 @@ fun LinkView(slope: Slope?) {
 fun ParticularSlope(slope: Slope?) {
     if (slope?.name == "Le forest") {
         Column {
-            Text("Attention :",
-                style = TextStyle(textDecoration = TextDecoration.Underline,
-                    color = Color.Red)
+            Text(
+                "Attention :",
+                style = TextStyle(
+                    textDecoration = TextDecoration.Underline,
+                    color = Color.Red
+                )
             )
             Text(
                 "Si vous provenez de la piste \"Bouticari vert\",\n" +
@@ -268,7 +294,7 @@ fun ParticularSlope(slope: Slope?) {
                 )
             )
             Text(
-                "Attention : \nSi vous provenez de la piste  \"Les chamois\",\n" +
+                "Si vous provenez de la piste  \"Les chamois\",\n" +
                         "Vous arriverez à la fin de la piste \"Les jockeys\" !",
                 fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
             )
@@ -283,7 +309,7 @@ fun ParticularSlope(slope: Slope?) {
                 )
             )
             Text(
-                "Attention ! :\nSi vous provenez de la piste \"Le gourq\",\n" +
+                "Si vous provenez de la piste \"Le gourq\",\n" +
                         "Vous arriverez à la fin de la piste \"Pré méan\" !",
                 fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
             )
@@ -298,7 +324,7 @@ fun ParticularSlope(slope: Slope?) {
                 )
             )
             Text(
-                "Attention ! : \nSi vous provenez de la piste \"La mandarine\",\n" +
+                "Si vous provenez de la piste \"La mandarine\",\n" +
                         "Vous ne pourrez pas rejoindre la piste \"La mandarine\" !",
                 fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
             )
@@ -313,7 +339,7 @@ fun ParticularSlope(slope: Slope?) {
                 )
             )
             Text(
-                "Attention : \nSi vous provenez de la piste \"La mandarine\",\n" +
+                "Si vous provenez de la piste \"La mandarine\",\n" +
                         "Vous ne pourrez rejoindre que les pistes \"Le S du chamois\"," +
                         "\" Les jockeys \" ou \" Le chamois \" !",
                 fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
