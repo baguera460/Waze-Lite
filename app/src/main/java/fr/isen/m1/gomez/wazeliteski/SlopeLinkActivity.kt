@@ -53,9 +53,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 import fr.isen.m1.gomez.wazeliteski.data.Level
 import fr.isen.m1.gomez.wazeliteski.data.OpinionSlope
 import fr.isen.m1.gomez.wazeliteski.data.Slope
@@ -196,8 +198,18 @@ fun LinkView(slope: Slope?) {
             var text by remember {
                 mutableStateOf("")
             }
-            Row(Modifier.padding(0.dp, 5.dp)) {
 
+            val opinions_slope = remember {
+                mutableStateListOf<OpinionSlope>()
+            }
+            var maxid = 0
+            var pres = 0
+            for (op: OpinionSlope in opinions_slope.toList()) {
+                maxid = if (maxid < op.id) op.id else maxid
+                if (op.slope == slope?.name)
+                    pres = 1
+            }
+            Row(Modifier.padding(0.dp, 5.dp)) {
                 TextField(
                     value = text, onValueChange = { text = it },
                     label = { Text("Laisser un commentaire") },
@@ -208,7 +220,12 @@ fun LinkView(slope: Slope?) {
                     ),
                     modifier = Modifier.width(300.dp)
                 )
-                IconButton(onClick = { //TODO
+                IconButton(onClick = {
+                    if (text != "") {
+                        val comm = slope?.let { OpinionSlope(maxid + 1, text, it.name, "test@gmail.com") }
+                        Firebase.database.reference.child("opinion_slope/${maxid + 1}/")
+                            .setValue(comm)
+                    }
                 }) {
                     Icon(
                         imageVector = Icons.Filled.Send, contentDescription = "Send",
@@ -219,24 +236,16 @@ fun LinkView(slope: Slope?) {
                 }
             }
 
-            val opinions_slope = remember {
-                mutableStateListOf<OpinionSlope>()
-            }
-            var pres = 0
-            for (op: OpinionSlope in opinions_slope.toList()) {
-                if(op.slope == slope?.name)
-                    pres = 1
-            }
-                Row(
+            Row(
                 Modifier
                     .background(Color(200, 200, 200))
                     .fillMaxWidth()
                     .padding(0.dp, 10.dp)
             ) {
-                    if(pres == 1)
-                        Text("Commentaires récents", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    else
-                        Text("C'est calme ici...", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                if (pres == 1)
+                    Text("Commentaires récents", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                else
+                    Text("C'est calme ici...", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
 
             Column() {
@@ -376,7 +385,7 @@ fun GetOpinionSlope(opinions: SnapshotStateList<OpinionSlope>) {
                 var index = 0
                 val fireBaseOpinions = snapshot.children.mapNotNull {
                     val opinion = it.getValue(OpinionSlope::class.java)
-                    opinion?.index = index
+                    opinion?.id = index
                     index += 1
                     return@mapNotNull opinion
                 }
