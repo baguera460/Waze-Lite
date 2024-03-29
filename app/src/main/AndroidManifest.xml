@@ -24,6 +24,9 @@
             android:name=".LiftActivity"
             android:exported="true" />
         <activity
+            android:name=".LiftLinkActivity"
+            android:exported="true" />
+        <activity
             android:name=".MenuActivity"
             android:exported="true" />
         <activity

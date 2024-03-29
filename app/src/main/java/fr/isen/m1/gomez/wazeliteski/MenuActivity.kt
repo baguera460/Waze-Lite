@@ -133,7 +133,7 @@ fun SetupView(menu: MenuInterface) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(25.dp)
-                ) {
+            ) {
                 Image(painterResource(id = R.drawable.waze_logo),null)
                 Text(
                     text = stringResource( R.string.app_name),
@@ -147,8 +147,10 @@ fun SetupView(menu: MenuInterface) {
                 CustomButton(type = LocationType.SLOPES, menu = menu)
                 TextButton(onClick = {})
                 {
+
                     Text(text = "Déconnexion", color = Color(0,0,125), textDecoration = TextDecoration.Underline, fontStyle = FontStyle.Italic,
                                 fontSize = 10.sp)
+
                 }
             }
 
