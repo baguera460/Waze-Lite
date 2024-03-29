@@ -34,6 +34,7 @@ fun TopBar(myString : String, color: Color) {
         ), navigationIcon = {
             IconButton(onClick = {
                 val intent = Intent(context, MenuActivity::class.java)
+
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 context.startActivity(intent)
             })
