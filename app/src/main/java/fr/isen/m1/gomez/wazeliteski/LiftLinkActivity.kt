@@ -409,6 +409,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
 import fr.isen.m1.gomez.wazeliteski.data.Lift
 import fr.isen.m1.gomez.wazeliteski.data.LiftType
 import fr.isen.m1.gomez.wazeliteski.data.OpinionLift
@@ -457,8 +459,6 @@ fun LinkView(lift: Lift?) {
                 Modifier.padding(top = 8.dp, bottom = 8.dp)
             )
 
-
-
             TextButton(
                 onClick = {
                     val newState = !state
@@ -479,18 +479,110 @@ fun LinkView(lift: Lift?) {
 
 
             SlopesList(slopes = lift?.slopes ?: listOf())
+            var text by remember {
+                mutableStateOf("")
+            }
 
+            val opinions_lift = remember {
+                mutableStateListOf<OpinionLift>()
+            }
+            var maxid = 0
+            var pres = 0
+            for (op: OpinionLift in opinions_lift.toList()) {
+                maxid = if (maxid < op.id) op.id else maxid
+                if (op.lift == lift?.name)
+                    pres = 1
+            }
+            Row(Modifier.padding(0.dp, 5.dp)) {
+                TextField(
+                    value = text, onValueChange = { text = it },
+                    label = { Text("Laisser un commentaire") },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(200, 200, 200),
+                        unfocusedContainerColor = Color(200, 200, 200),
+                        unfocusedLabelColor = Color(155, 155, 155)
+                    ),
+                    modifier = Modifier.width(300.dp)
+                )
+                IconButton(onClick = {
+                    if (text != "") {
+                        val comm = lift?.let { OpinionLift(maxid + 1, text, it.name, "test@gmail.com") }
+                        Firebase.database.reference.child("opinion_lift/${maxid + 1}/")
+                            .setValue(comm)
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Send, contentDescription = "Send",
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .size(30.dp)
+                    )
+                }
+            }
+//            Row(Modifier.padding(0.dp, 5.dp)) {
+//                TextField(
+//                    value = text, onValueChange = { text = it },
+//                    label = { Text("Laisser un commentaire") },
+//                    colors = TextFieldDefaults.colors(
+//                        focusedContainerColor = Color(200, 200, 200),
+//                        unfocusedContainerColor = Color(200, 200, 200),
+//                        unfocusedLabelColor = Color(155, 155, 155)
+//                    ),
+//                    modifier = Modifier.width(300.dp)
+//                )
+//                IconButton(onClick = {
+//                    if (text != "") {
+//                        val comm = lift?.let { OpinionLift(0, text, it.name, "test@gmail.com") }
+//                        FirebaseDatabase.getInstance().getReference("opinion_lift").push()
+//                            .setValue(comm)
+//                    }
+//                }) {
+//                    Icon(
+//                        imageVector = Icons.Filled.Send, contentDescription = "Send",
+//                        modifier = Modifier
+//                            .align(Alignment.CenterVertically)
+//                            .size(30.dp)
+//                    )
+//                }
+//            }
 
-            OpinionTextField(lift = lift, opinionsLift = opinionsLift)
+            Row(
+                Modifier
+                    .background(Color(200, 200, 200))
+                    .fillMaxWidth()
+                    .padding(0.dp, 10.dp)
+            ) {
+                if (pres == 1)
+                    Text("Commentaires récents", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                else
+                    Text("C'est calme ici...", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
 
+            Column() {
+                for (op: OpinionLift in opinions_lift.toList()) {
+                    Column(
+                        Modifier
+                            .background(Color(200, 200, 200))
+                            .fillMaxWidth()
+                    ) {
+                        if (op.lift == lift?.name) {
+                            Text(
+                                "De " + op.user,
+                                fontSize = 16.sp
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(op.comment)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+            }
 
-            DisplayOpinions(opinionsLift = opinionsLift)
+            GetOpinionLift(opinions_lift)
         }
     }
-
-    // Retrieve opinions on lifts from Firebase
-    GetOpinionLift(opinions = opinionsLift)
 }
+
 
 @Composable
 fun SlopesList(slopes: List<String>) {
@@ -502,68 +594,6 @@ fun SlopesList(slopes: List<String>) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(slopes) { slope ->
                 Text(slope)
-            }
-        }
-    }
-}
-
-@Composable
-fun OpinionTextField(lift: Lift?, opinionsLift: MutableList<OpinionLift>) {
-    var text by remember { mutableStateOf("") }
-
-    Row(Modifier.padding(0.dp, 5.dp)) {
-        TextField(
-            value = text, onValueChange = { text = it },
-            label = { Text("Laisser un commentaire") },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(200, 200, 200),
-                unfocusedContainerColor = Color(200, 200, 200),
-                unfocusedLabelColor = Color(155, 155, 155)
-            ),
-            modifier = Modifier.width(300.dp)
-        )
-        IconButton(onClick = {
-            if (text != "") {
-                val comm = lift?.let { OpinionLift(0, text, it.name, "test@gmail.com") }
-                FirebaseDatabase.getInstance().getReference("opinion_lift").push()
-                    .setValue(comm)
-            }
-        }) {
-            Icon(
-                imageVector = Icons.Filled.Send, contentDescription = "Send",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .size(30.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun DisplayOpinions(opinionsLift: List<OpinionLift>) {
-    Row(
-        Modifier
-            .background(Color(200, 200, 200))
-            .fillMaxWidth()
-            .padding(0.dp, 5.dp)
-    ) {
-        if (opinionsLift.isNotEmpty())
-            Text("Commentaires récents", fontWeight = FontWeight.Bold)
-        else
-            Text("C'est calme ici...", fontWeight = FontWeight.Bold)
-    }
-
-    Column() {
-        for (op: OpinionLift in opinionsLift) {
-            Column(
-                Modifier
-                    .background(Color(200, 200, 200))
-                    .fillMaxWidth()
-            ) {
-                Text("De ${op.user}")
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(op.comment)
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
