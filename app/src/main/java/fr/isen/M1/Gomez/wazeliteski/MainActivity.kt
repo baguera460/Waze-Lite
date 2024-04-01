@@ -9,23 +9,28 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,12 +38,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -51,7 +62,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
 enum class AuthenticationType {
     LOGIN, REGISTER;
@@ -66,6 +76,7 @@ interface MainInterface {
         confirmPassword: String,
         phoneNumber: String
     )
+
     fun changeAuthenticationActivity(type: AuthenticationType)
     fun resetPassword()
 }
@@ -103,12 +114,17 @@ class MainActivity : ComponentActivity(), MainInterface {
             ?: AuthenticationType.LOGIN
 
         setContent {
-            WazeLiteSkiTheme {
-                Surface(
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    SetupView(type, this)
-                }
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.background_main),
+                    contentDescription = "background",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.matchParentSize()
+                )
+                SetupView(type, this@MainActivity)
             }
         }
     }
@@ -248,28 +264,92 @@ class MainActivity : ComponentActivity(), MainInterface {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Title(text: String) {
+    Text(
+        text = text,
+        textAlign = TextAlign.Center,
+        color = Color.Black,
+        fontSize = 32.sp,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+fun MainButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .width(200.dp)
+            .padding(5.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF68B7FF),
+            contentColor = Color.White
+        )
+    ) {
+        Text(text = text, fontSize = 20.sp)
+    }
+}
+
+@Composable
+fun Input(
+    value: String,
+    text: String,
+    type: KeyboardType,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onValueChange: (String) -> Unit
+) {
+    Column {
+        Text(
+            text = text,
+            fontSize = 20.sp,
+            color = Color(0xFF000000),
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.width(TextFieldDefaults.MinWidth)
+        )
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = type,
+                autoCorrect = false
+            ),
+            visualTransformation = visualTransformation,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFFFFFFF),
+                unfocusedContainerColor = Color(0xFFFFFFFF),
+                focusedTextColor = Color(0xFF000000),
+                unfocusedTextColor = Color(0xFF848484),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedTrailingIconColor = Color(0xFF000000),
+                unfocusedTrailingIconColor = Color(0xFF848484)
+            ),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.border(2.dp, Color(0xFF93B1FF), RoundedCornerShape(20.dp)),
+            textStyle = TextStyle(fontSize = 17.sp),
+            trailingIcon = {
+                if (value.isNotEmpty()) {
+                    IconButton(onClick = { onValueChange("") }) {
+                        Icon(
+                            imageVector = Icons.Filled.Clear,
+                            contentDescription = "Clear"
+                        )
+                    }
+                }
+            }
+        )
+    }
+}
+
 @Composable
 fun SetupView(type: AuthenticationType, activity: MainInterface) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
-
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = "WazeLiteSki",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = 40.sp
-            )
-        },
-        colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer),
-        modifier = Modifier
-            .clip(
-                shape = RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp),
-            )
-    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -277,123 +357,100 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (type == AuthenticationType.REGISTER) {
-            Text(
-                text = "Sign up",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 30.sp
-            )
-        } else {
-            Text(
-                text = "Sign in",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 30.sp
-            )
-        }
+        if (type == AuthenticationType.REGISTER)
+            Title(text = "Sign up")
+        else
+            Title(text = "Sign in")
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TextField(
+            Input(
                 value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email,
-                    autoCorrect = false
-                )
-            )
-            TextField(
+                text = "Email",
+                type = KeyboardType.Email
+            ) {
+                email = it
+            }
+            Input(
                 value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Password,
-                    autoCorrect = false,
-                ),
+                text = "Password",
+                type = KeyboardType.Password,
                 visualTransformation = PasswordVisualTransformation(mask = '•')
-            )
+            ) {
+                password = it
+            }
             if (type == AuthenticationType.REGISTER) {
-                TextField(
+                Input(
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm Password") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Password,
-                        autoCorrect = false,
-                    ),
+                    text = "Confirm Password",
+                    type = KeyboardType.Password,
                     visualTransformation = PasswordVisualTransformation(mask = '•')
-                )
-                TextField(
+                ) {
+                    confirmPassword = it
+                }
+                Input(
                     value = phoneNumber,
-                    onValueChange = { phoneNumber = it },
-                    label = { Text("Phone Number") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Phone,
-                        autoCorrect = false
-                    )
-                )
+                    text = "Phone Number",
+                    type = KeyboardType.Phone
+                ) {
+                    phoneNumber = it
+                }
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (type == AuthenticationType.REGISTER) {
-                    Button(onClick = {
+                    MainButton(
+                        "Sign up"
+                    ) {
                         activity.registerAttempt(
                             email,
                             password,
                             confirmPassword,
                             phoneNumber
                         )
-                    }) {
-                        Text(text = "Sign up")
                     }
-                    Text(text = "or", fontSize = 20.sp)
-                    Button(onClick = { activity.changeAuthenticationActivity(AuthenticationType.LOGIN) }) {
-                        Text(text = "Sign in")
+                    MainButton(text = "Sign in") {
+                        activity.changeAuthenticationActivity(AuthenticationType.LOGIN)
                     }
                 } else {
-                    Button(onClick = { activity.loginAttempt(email, password) }) {
-                        Text(text = "Sign in")
+                    MainButton(text = "Sign in") {
+                        activity.loginAttempt(email, password)
                     }
-                    Text(text = "or", fontSize = 20.sp)
-                    Button(onClick = { activity.changeAuthenticationActivity(AuthenticationType.REGISTER) }) {
-                        Text(text = "Sign up")
+                    MainButton(text = "Sign up") {
+                        activity.changeAuthenticationActivity(AuthenticationType.REGISTER)
                     }
                     TextButton(onClick = { activity.resetPassword() }) {
-                        Text(text = "Forgot your password?")
+                        Text(
+                            text = "Forgot your password ?",
+                            fontSize = 15.sp,
+                            textDecoration = TextDecoration.Underline,
+                            color = Color(0xFF0085FF)
+                        )
                     }
                 }
             }
         }
-        Button(onClick = { activity.signInGoogle() }) {
-            Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.google_logo),
-                contentDescription = "Google Logo",
-            )
-            Text(text = " Sign in with Google")
-        }
-    }
-    Box(
-        Modifier.fillMaxSize(),
-        Alignment.BottomCenter
-    ) {
-        CenterAlignedTopAppBar(
-            title = {
-
-            },
-            colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer),
-            modifier = Modifier
-                .clip(
-                    shape = RoundedCornerShape(20.dp, 20.dp, 0.dp, 0.dp),
+        if (type == AuthenticationType.LOGIN) {
+            Button(
+                onClick = { activity.signInGoogle() },
+                modifier = Modifier.padding(5.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF68B7FF),
+                    contentColor = Color.White
                 )
-        )
+            ) {
+                Image(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.google_logo),
+                    contentDescription = "Google Logo",
+                    alignment = Alignment.CenterStart,
+                    modifier = Modifier.size(30.dp)
+                )
+                Text(text = " Sign in with Google", fontSize = 20.sp)
+            }
+        }
     }
 }

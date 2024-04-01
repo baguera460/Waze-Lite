@@ -5,25 +5,19 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,7 +25,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
 
 interface MailVerificationInterface {
     fun sendVerificationEmail()
@@ -54,12 +47,17 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
         this.user = user
         auth.signOut()
         setContent {
-            WazeLiteSkiTheme {
-                Surface(
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    MailVerificationView(this, user.email!!)
-                }
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.background_main_darker),
+                    contentDescription = "background",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.matchParentSize()
+                )
+                MailVerificationView(this@MailVerificationActivity)
             }
         }
     }
@@ -83,68 +81,42 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MailVerificationView(activity: MailVerificationInterface, email: String) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = "WazeLiteSki",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontSize = 40.sp
-            )
-        },
-        colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer),
-        modifier = Modifier
-            .clip(
-                shape = RoundedCornerShape(0.dp, 0.dp, 20.dp, 20.dp),
-            )
-    )
+fun MailVerificationView(activity: MailVerificationInterface) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Mail Verification",
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 30.sp
+        Image(
+            painter = painterResource(id = R.drawable.mail_verification),
+            contentDescription = "Mail Verification"
         )
         Text(
-            text = email,
+            text = "Connect to your email address",
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 20.sp
+            color = Color.Black,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold
         )
-        Button(
-            modifier = Modifier.fillMaxWidth(3 / 4f),
-            onClick = { activity.sendVerificationEmail() }
-        ) {
-            Text("Send verification email")
-        }
-        Button(
-            modifier = Modifier.fillMaxWidth(3 / 4f),
-            onClick = { activity.signIn() }
-        ) {
-            Text("Sign In")
-        }
-    }
-    Box(
-        Modifier.fillMaxSize(),
-        Alignment.BottomCenter
-    ) {
-        CenterAlignedTopAppBar(
-            title = {
-
-            },
-            colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer),
-            modifier = Modifier
-                .clip(
-                    shape = RoundedCornerShape(20.dp, 20.dp, 0.dp, 0.dp),
-                )
+        Text(
+            text = "A verification email has been sent to your email address. Once you have verified your email address, click on the button below to sign in.",
+            textAlign = TextAlign.Center,
+            color = Color.Black,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold
         )
+        Text(
+            text = "If you didn't receive the email, click on the button below to send it again.",
+            textAlign = TextAlign.Center,
+            color = Color.Black,
+            fontSize = 15.sp
+        )
+        MainButton(text = "Send verification email") {
+            activity.sendVerificationEmail()
+        }
+        MainButton(text = "Sign In") {
+            activity.signIn()
+        }
     }
 }
