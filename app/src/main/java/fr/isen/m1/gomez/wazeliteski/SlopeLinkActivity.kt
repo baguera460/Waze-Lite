@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,13 +26,13 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -202,10 +200,10 @@ fun LinkView(slope: Slope?) {
             val opinions_slope = remember {
                 mutableStateListOf<OpinionSlope>()
             }
-            var maxid = 0
+
             var pres = 0
+            val maxid = opinions_slope.lastOrNull()?.id
             for (op: OpinionSlope in opinions_slope.toList()) {
-                maxid = if (maxid < op.id) op.id else maxid
                 if (op.slope == slope?.name)
                     pres = 1
             }
@@ -222,9 +220,15 @@ fun LinkView(slope: Slope?) {
                 )
                 IconButton(onClick = {
                     if (text != "") {
-                        val comm = slope?.let { OpinionSlope(maxid + 1, text, it.name, "test@gmail.com") }
-                        Firebase.database.reference.child("opinion_slope/${maxid + 1}/")
-                            .setValue(comm)
+                        val comm = slope?.let {
+                            if (maxid != null) {
+                                OpinionSlope(maxid + 1, text, it.name, "test@gmail.com")
+                            }
+                        }
+                        if (maxid != null) {
+                            Firebase.database.reference.child("opinion_slope/${maxid + 1}/")
+                                .setValue(comm)
+                        }
                     }
                 }) {
                     Icon(
