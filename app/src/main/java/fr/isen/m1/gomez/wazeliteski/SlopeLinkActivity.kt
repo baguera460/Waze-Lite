@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,6 +50,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,32 +87,70 @@ fun LinkView(slope: Slope?) {
     val context = LocalContext.current
 
     val color: Color? = (slope?.color?.let { Level.from(it) })?.colorId()
-    val colorstate: Color = if (slope?.state == true) Color(20, 200, 20) else Color(220, 20, 20)
-    val state: String = if (slope?.state == true) "ouverte" else "fermée"
-    Column {
+    val colorstate: Color = if (slope?.state == true) Color(144, 238, 144) else Color(238, 144, 144)
+    val state: String = if (slope?.state == true) "OUVERTE" else "FERMÉE"
+    Column(Modifier.background(Color(0xFFD9EAF6))) {
         if (color != null) {
-            TopBar("Desservissement ${slope.name}", color)
+            Header()
         }
         Column(
             modifier = Modifier
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState())
-                .background(Color(176, 196, 222))
+                .background(Color(0xFFD9EAF6))
         ) {
-            Row(modifier = Modifier.padding(5.dp, 10.dp)) {
-                Box(
-                    modifier = Modifier
+            Row(
+                modifier = Modifier
+                    .padding(5.dp, 30.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                color?.let {
+                    Modifier
                         .size(45.dp)
                         .clip(CircleShape)
-                        .background(colorstate)
-                )
-                Text(
-                    "Piste $state",
-                    Modifier.padding(5.dp, 10.dp),
-                    fontSize = 20.sp
-                )
+                        .background(it)
+                }?.let {
+                    Box(
+                        modifier = it
+                    )
+                }
+                slope?.name?.let {
+                    Text(
+                        it,
+                        Modifier.padding(30.dp, 0.dp),
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                    )
+                }
             }
-            Divider(color = Color.Black)
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Modifier
+                    .size(45.dp)
+                    .clip(CircleShape)
+                    .background(colorstate)
+                TextButton(
+                    onClick = {
+                        val newValue = !slope?.state!!
+                        Firebase.database.reference.child("slopes/${slope.index}/state")
+                            .setValue(newValue)
+                        slope.state = newValue
+                    },
+                    modifier = Modifier
+                        .align(alignment = Alignment.CenterVertically),
+                    shape = CircleShape,
+                    border = BorderStroke(2.dp, colorstate),
+                    colors = ButtonDefaults.buttonColors(containerColor = colorstate)
+                )
+                {
+                    Text(
+                        state,
+                        Modifier.padding(30.dp, 0.dp),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                }
+            }
             val nexts = slope?.next
             if (nexts != null) {
                 for (i: Int in nexts)
@@ -147,52 +188,56 @@ fun LinkView(slope: Slope?) {
                     ParticularSlope(slope = slope)
                 }
             }
+
+            Row(Modifier.padding(0.dp, 20.dp)) {}
             if (slopes.isNotEmpty()) {
                 Row(
                     modifier = Modifier
-                        .padding(5.dp, 10.dp)
                         .align(Alignment.CenterHorizontally)
                 ) {
                     Text(
-                        "Pistes desservies \n",
-                        fontSize = 18.sp,
+                        "Descentes desservies \n",
+                        fontSize = 25.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 for (s: Slope in slopes) {
-                    Divider(
-                        color = Color.Black,
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(2.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
-                    TextButton(
-                        onClick = {
-                            val intent = Intent(context, SlopeLinkActivity::class.java)
-                            intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, s)
-                            context.startActivity(intent)
-                        },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    {
-                        Text(
-                            s.name,
-                            fontSize = 15.sp,
-                            color = (Level.from(s.color)).colorId()
+                    Row() {
+                        Box(
+                            Modifier
+                                .padding(10.dp)
+                                .size(45.dp)
+                                .clip(CircleShape)
+                                .background((Level.from(s.color)).colorId())
                         )
+                        Row(Modifier.padding(0.dp, 7.dp)) {
+                            TextButton(
+                                onClick = {
+                                    val intent = Intent(context, SlopeLinkActivity::class.java)
+                                    intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, s)
+                                    context.startActivity(intent)
+                                },
+                            )
+                            {
+                                Text(
+                                    s.name,
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                )
+                            }
+                        }
                     }
                 }
-                Divider(
-                    color = Color.Black,
-                    modifier = Modifier
-                        .width(80.dp)
-                        .height(2.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-
             }
-            Row(Modifier.padding(0.dp, 40.dp)) {}
+            Row(Modifier.padding(0.dp, 20.dp)) {}
+            Divider(
+                Modifier
+                    .width(250.dp)
+                    .align(Alignment.CenterHorizontally),
+                color = Color.Black
+            )
+            Spacer(Modifier.padding(0.dp,20.dp))
             var text by remember {
                 mutableStateOf("")
             }
@@ -201,16 +246,40 @@ fun LinkView(slope: Slope?) {
                 mutableStateListOf<OpinionSlope>()
             }
 
-            var pres = 0
             val maxid = opinions_slope.lastOrNull()?.id
-            for (op: OpinionSlope in opinions_slope.toList()) {
-                if (op.slope == slope?.name)
-                    pres = 1
+
+            Column() {
+                for (op: OpinionSlope in opinions_slope.toList()) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                    ) {
+                        if (op.slope == slope?.name) {
+                            Text(op.user,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            TextButton(
+                                onClick = {},
+                                enabled = false,
+                                shape = RoundedCornerShape(5.dp),
+                                border = BorderStroke(2.dp, Color(100, 200, 100)),
+                                colors = ButtonDefaults.buttonColors(disabledContainerColor = Color(100, 200, 100),
+                                    disabledContentColor = Color.White)) {
+                                    Text(op.comment)
+                                }
+                            Spacer(modifier = Modifier.height(18.dp))
+                        }
+                    }
+                }
             }
             Row(Modifier.padding(0.dp, 5.dp)) {
                 TextField(
                     value = text, onValueChange = { text = it },
-                    label = { Text("Laisser un commentaire") },
+                    label = { Text("Laissez un commentaire",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold) },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color(200, 200, 200),
                         unfocusedContainerColor = Color(200, 200, 200),
@@ -239,41 +308,7 @@ fun LinkView(slope: Slope?) {
                     )
                 }
             }
-
-            Row(
-                Modifier
-                    .background(Color(200, 200, 200))
-                    .fillMaxWidth()
-                    .padding(0.dp, 10.dp)
-            ) {
-                if (pres == 1)
-                    Text("Commentaires récents", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                else
-                    Text("C'est calme ici...", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
-
-            Column() {
-                for (op: OpinionSlope in opinions_slope.toList()) {
-                    Column(
-                        Modifier
-                            .background(Color(200, 200, 200))
-                            .fillMaxWidth()
-                    ) {
-                        if (op.slope == slope?.name) {
-                            Text(
-                                "De " + op.user,
-                                fontSize = 16.sp
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(op.comment)
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                    }
-                }
-            }
-
             GetOpinionSlope(opinions_slope)
-            //Text("Afficher plus")
         }
     }
 }

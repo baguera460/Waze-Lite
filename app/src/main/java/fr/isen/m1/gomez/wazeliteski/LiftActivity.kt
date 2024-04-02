@@ -58,7 +58,7 @@ class LiftActivity : ComponentActivity() {
                 mutableStateListOf<Lift>()
             }
             Column {
-                TopBar("Remontee", Color(176, 196, 255))
+                Header()
                 Surface(modifier = Modifier.fillMaxSize())
                 {
                     LazyColumn(

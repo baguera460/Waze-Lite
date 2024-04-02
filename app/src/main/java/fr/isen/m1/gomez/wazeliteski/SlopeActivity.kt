@@ -49,7 +49,7 @@ class SlopeActivity : ComponentActivity() {
                 mutableStateListOf<Slope>()
             }
             Column {
-                TopBar("Pistes", Color(176, 196, 255))
+                Header()
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
