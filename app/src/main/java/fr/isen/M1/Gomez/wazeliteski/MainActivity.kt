@@ -13,11 +13,15 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -33,16 +37,16 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -71,14 +75,8 @@ interface MainInterface {
     fun signInGoogle()
     fun loginAttempt(email: String, password: String)
     fun registerAttempt(
-        email: String,
-        password: String,
-        confirmPassword: String,
-        phoneNumber: String
+        email: String, password: String, confirmPassword: String, phoneNumber: String
     )
-
-    fun changeAuthenticationActivity(type: AuthenticationType)
-    fun resetPassword()
 }
 
 class MainActivity : ComponentActivity(), MainInterface {
@@ -102,21 +100,17 @@ class MainActivity : ComponentActivity(), MainInterface {
         auth = Firebase.auth
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
+            .requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         googleSignInClient.revokeAccess()
 
-        val type = intent.getStringExtra("type")
-            ?.let { AuthenticationType.valueOf(it) }
+        val type = intent.getStringExtra("type")?.let { AuthenticationType.valueOf(it) }
             ?: AuthenticationType.LOGIN
 
         setContent {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.background_main),
@@ -134,9 +128,9 @@ class MainActivity : ComponentActivity(), MainInterface {
 
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
+            ActivityHelper.goToActivity(
+                this, HomeActivity::class.java, Intent.FLAG_ACTIVITY_CLEAR_TOP
+            )
         }
     }
 
@@ -147,19 +141,19 @@ class MainActivity : ComponentActivity(), MainInterface {
 
     private fun updateUI(account: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener(this) {
-                if (it.isSuccessful) {
-                    Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, HomeActivity::class.java)
-                    intent.putExtra("account", account)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    startActivity(intent)
-                } else {
-                    Log.w(TAG, "signInWithCredential:failure", it.exception)
-                    Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT).show()
-                }
+        auth.signInWithCredential(credential).addOnCompleteListener(this) {
+            if (it.isSuccessful) {
+                Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT).show()
+                ActivityHelper.goToActivity(
+                    this, HomeActivity::class.java, Intent.FLAG_ACTIVITY_CLEAR_TOP, mapOf(
+                        "account" to account
+                    )
+                )
+            } else {
+                Log.w(TAG, "signInWithCredential:failure", it.exception)
+                Toast.makeText(this, "Something went wrong...", Toast.LENGTH_SHORT).show()
             }
+        }
     }
 
     override fun loginAttempt(email: String, password: String) {
@@ -169,34 +163,33 @@ class MainActivity : ComponentActivity(), MainInterface {
 
             return
         }
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser!!
-                    if (user.isEmailVerified) {
-                        Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT)
-                            .show()
-                        val intent = Intent(this, HomeActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(intent)
-                    } else {
-                        Toast.makeText(this, "Email not verified", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this, MailVerificationActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(intent)
-                    }
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val user = auth.currentUser!!
+                if (user.isEmailVerified) {
+                    Toast.makeText(this, "Authenticated Successfully", Toast.LENGTH_SHORT)
+                        .show()
+                    Log.d("Login", "signInWithEmail:success")
+                    ActivityHelper.goToActivity(
+                        this, HomeActivity::class.java, Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    )
                 } else {
-                    Log.w("Login", "signInWithEmail:failure", task.exception)
-                    Toast.makeText(this, "Wrong credentials", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Email not verified", Toast.LENGTH_SHORT).show()
+                    ActivityHelper.goToActivity(
+                        this,
+                        MailVerificationActivity::class.java,
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    )
                 }
+            } else {
+                Log.w("Login", "signInWithEmail:failure", task.exception)
+                Toast.makeText(this, "Wrong credentials", Toast.LENGTH_LONG).show()
             }
+        }
     }
 
     override fun registerAttempt(
-        email: String,
-        password: String,
-        confirmPassword: String,
-        phoneNumber: String
+        email: String, password: String, confirmPassword: String, phoneNumber: String
     ) {
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phoneNumber.isEmpty()) {
             Log.w("Login", "Empty fields")
@@ -205,62 +198,47 @@ class MainActivity : ComponentActivity(), MainInterface {
             return
         }
         if (password == confirmPassword) {
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val user = auth.currentUser
-                        user!!.sendEmailVerification()
-                            .addOnCompleteListener {
-                                if (it.isSuccessful) {
-                                    Toast.makeText(
-                                        this,
-                                        "Email verification sent to $email",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                } else {
-                                    Log.e("Register", "sendEmailVerification", task.exception)
-                                    Toast.makeText(
-                                        this,
-                                        "Failed to send verification email",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-
-                        val userTable = Firebase.database.reference.child("user")
-                        val userInformation = HashMap<String, String>(
-                            mapOf(
-                                "mail" to email,
-                                "phone" to phoneNumber
-                            )
-                        )
-                        userTable.child(user.uid).setValue(userInformation)
-                        val intent = Intent(this, MailVerificationActivity::class.java)
-                        startActivity(intent)
-                    } else {
-                        Log.w("Register", "createUserWithEmail:failure", task.exception)
-                        Toast.makeText(
-                            this,
-                            "${task.exception?.localizedMessage}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    user!!.sendEmailVerification().addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            Toast.makeText(
+                                this, "Email verification sent to $email", Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            Log.e("Register", "sendEmailVerification", task.exception)
+                            Toast.makeText(
+                                this,
+                                "Failed to send verification email",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
+
+                    val userTable = Firebase.database.reference.child("user")
+                    val userInformation = HashMap<String, String>(
+                        mapOf(
+                            "mail" to email, "phone" to phoneNumber
+                        )
+                    )
+                    userTable.child(user.uid).setValue(userInformation)
+                    ActivityHelper.goToActivity(
+                        this,
+                        MailVerificationActivity::class.java,
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    )
+                } else {
+                    Log.w("Register", "createUserWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        this, "${task.exception?.localizedMessage}", Toast.LENGTH_SHORT
+                    ).show()
                 }
+            }
         } else {
             Log.w("Register", "Passwords do not match")
             Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    override fun changeAuthenticationActivity(type: AuthenticationType) {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("type", type.name)
-        startActivity(intent)
-    }
-
-    override fun resetPassword() {
-        val intent = Intent(this, PasswordResetActivity::class.java)
-        startActivity(intent)
     }
 }
 
@@ -280,11 +258,10 @@ fun MainButton(text: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
-            .width(200.dp)
+            .defaultMinSize(minWidth = 200.dp)
             .padding(5.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF68B7FF),
-            contentColor = Color.White
+            containerColor = Color(0xFF68B7FF), contentColor = Color.White
         )
     ) {
         Text(text = text, fontSize = 20.sp)
@@ -299,6 +276,9 @@ fun Input(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onValueChange: (String) -> Unit
 ) {
+    var visualTransformationRemember by remember { mutableStateOf(visualTransformation) }
+    var eyeIconId by remember { mutableIntStateOf(R.drawable.eye_closed) }
+
     Column {
         Text(
             text = text,
@@ -308,15 +288,13 @@ fun Input(
             textAlign = TextAlign.Start,
             modifier = Modifier.width(TextFieldDefaults.MinWidth)
         )
-        TextField(
-            value = value,
+        TextField(value = value,
             onValueChange = onValueChange,
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = type,
-                autoCorrect = false
+                keyboardType = type, autoCorrect = false
             ),
-            visualTransformation = visualTransformation,
+            visualTransformation = visualTransformationRemember,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = Color(0xFFFFFFFF),
                 unfocusedContainerColor = Color(0xFFFFFFFF),
@@ -332,24 +310,43 @@ fun Input(
             textStyle = TextStyle(fontSize = 17.sp),
             trailingIcon = {
                 if (value.isNotEmpty()) {
-                    IconButton(onClick = { onValueChange("") }) {
-                        Icon(
-                            imageVector = Icons.Filled.Clear,
-                            contentDescription = "Clear"
-                        )
+                    Row {
+                        IconButton(onClick = { onValueChange("") }) {
+                            Icon(
+                                imageVector = Icons.Filled.Clear, contentDescription = "Clear"
+                            )
+                        }
+                        if (text.contains("Password", true)) {
+                            IconButton(onClick = {
+                                if (eyeIconId == R.drawable.eye_opened) {
+                                    visualTransformationRemember =
+                                        PasswordVisualTransformation(mask = '•')
+                                    eyeIconId = R.drawable.eye_closed
+                                } else {
+                                    visualTransformationRemember = VisualTransformation.None
+                                    eyeIconId = R.drawable.eye_opened
+                                }
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = eyeIconId),
+                                    contentDescription = "eye icon",
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                        }
                     }
                 }
-            }
-        )
+            })
     }
 }
 
 @Composable
-fun SetupView(type: AuthenticationType, activity: MainInterface) {
+fun SetupView(type: AuthenticationType, activity: MainActivity) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -357,10 +354,8 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (type == AuthenticationType.REGISTER)
-            Title(text = "Sign up")
-        else
-            Title(text = "Sign in")
+        if (type == AuthenticationType.REGISTER) Title(text = "Sign up")
+        else Title(text = "Sign in")
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -368,9 +363,7 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Input(
-                value = email,
-                text = "Email",
-                type = KeyboardType.Email
+                value = email, text = "Email", type = KeyboardType.Email
             ) {
                 email = it
             }
@@ -392,9 +385,7 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
                     confirmPassword = it
                 }
                 Input(
-                    value = phoneNumber,
-                    text = "Phone Number",
-                    type = KeyboardType.Phone
+                    value = phoneNumber, text = "Phone Number", type = KeyboardType.Phone
                 ) {
                     phoneNumber = it
                 }
@@ -407,23 +398,32 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
                         "Sign up"
                     ) {
                         activity.registerAttempt(
-                            email,
-                            password,
-                            confirmPassword,
-                            phoneNumber
+                            email, password, confirmPassword, phoneNumber
                         )
                     }
                     MainButton(text = "Sign in") {
-                        activity.changeAuthenticationActivity(AuthenticationType.LOGIN)
+                        ActivityHelper.goToActivity(
+                            activity, MainActivity::class.java, extras = mapOf(
+                                "type" to AuthenticationType.LOGIN.name
+                            )
+                        )
                     }
                 } else {
                     MainButton(text = "Sign in") {
                         activity.loginAttempt(email, password)
                     }
                     MainButton(text = "Sign up") {
-                        activity.changeAuthenticationActivity(AuthenticationType.REGISTER)
+                        ActivityHelper.goToActivity(
+                            activity, MainActivity::class.java, extras = mapOf(
+                                "type" to AuthenticationType.REGISTER.name
+                            )
+                        )
                     }
-                    TextButton(onClick = { activity.resetPassword() }) {
+                    TextButton(onClick = {
+                        ActivityHelper.goToActivity(
+                            activity, PasswordResetActivity::class.java
+                        )
+                    }) {
                         Text(
                             text = "Forgot your password ?",
                             fontSize = 15.sp,
@@ -439,17 +439,19 @@ fun SetupView(type: AuthenticationType, activity: MainInterface) {
                 onClick = { activity.signInGoogle() },
                 modifier = Modifier.padding(5.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF68B7FF),
-                    contentColor = Color.White
+                    containerColor = Color(0xFF68B7FF), contentColor = Color.White
                 )
             ) {
                 Image(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.google_logo),
+                    painter = painterResource(id = R.drawable.google_logo),
                     contentDescription = "Google Logo",
                     alignment = Alignment.CenterStart,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
                 )
-                Text(text = " Sign in with Google", fontSize = 20.sp)
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(text = "Sign in with Google", fontSize = 20.sp)
             }
         }
     }

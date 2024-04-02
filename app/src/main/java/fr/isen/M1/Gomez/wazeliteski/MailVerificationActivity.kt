@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,7 +29,6 @@ import com.google.firebase.ktx.Firebase
 
 interface MailVerificationInterface {
     fun sendVerificationEmail()
-    fun signIn()
 }
 
 class MailVerificationActivity : ComponentActivity(), MailVerificationInterface {
@@ -41,7 +41,11 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
         auth = Firebase.auth
         val user = auth.currentUser
         if (user == null || user.isEmailVerified) {
-            finish()
+            ActivityHelper.goToActivity(
+                this,
+                MainActivity::class.java,
+                Intent.FLAG_ACTIVITY_CLEAR_TOP
+            )
             return
         }
         this.user = user
@@ -73,16 +77,10 @@ class MailVerificationActivity : ComponentActivity(), MailVerificationInterface 
                 }
             }
     }
-
-    override fun signIn() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
-    }
 }
 
 @Composable
-fun MailVerificationView(activity: MailVerificationInterface) {
+fun MailVerificationView(activity: MailVerificationActivity) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
@@ -104,19 +102,25 @@ fun MailVerificationView(activity: MailVerificationInterface) {
             textAlign = TextAlign.Center,
             color = Color.Black,
             fontSize = 20.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = 20.dp)
         )
         Text(
             text = "If you didn't receive the email, click on the button below to send it again.",
             textAlign = TextAlign.Center,
             color = Color.Black,
-            fontSize = 15.sp
+            fontSize = 15.sp,
+            modifier = Modifier.padding(horizontal = 20.dp)
         )
         MainButton(text = "Send verification email") {
             activity.sendVerificationEmail()
         }
         MainButton(text = "Sign In") {
-            activity.signIn()
+            ActivityHelper.goToActivity(
+                activity,
+                MainActivity::class.java,
+                Intent.FLAG_ACTIVITY_CLEAR_TOP
+            )
         }
     }
 }

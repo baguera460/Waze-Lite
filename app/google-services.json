@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "472034623985-osq5f12rl0alpc4aj215a27q882jehl2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fr.isen.m1.gomez.wazeliteski",
+            "certificate_hash": "10c0541813e614ecd6d06a60e8c6322f451207bb"
+          }
+        },
+        {
           "client_id": "472034623985-umcgs6tbab4h0egb4d2q6q313dbij43l.apps.googleusercontent.com",
           "client_type": 3
         }
