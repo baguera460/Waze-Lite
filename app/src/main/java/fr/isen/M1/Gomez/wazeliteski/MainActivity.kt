@@ -299,11 +299,11 @@ fun Input(
                 focusedContainerColor = Color(0xFFFFFFFF),
                 unfocusedContainerColor = Color(0xFFFFFFFF),
                 focusedTextColor = Color(0xFF000000),
-                unfocusedTextColor = Color(0xFF848484),
+                unfocusedTextColor = Color(0xFF000000),
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedTrailingIconColor = Color(0xFF000000),
-                unfocusedTrailingIconColor = Color(0xFF848484)
+                unfocusedTrailingIconColor = Color(0xFF000000)
             ),
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier.border(2.dp, Color(0xFF93B1FF), RoundedCornerShape(20.dp)),
@@ -311,11 +311,6 @@ fun Input(
             trailingIcon = {
                 if (value.isNotEmpty()) {
                     Row {
-                        IconButton(onClick = { onValueChange("") }) {
-                            Icon(
-                                imageVector = Icons.Filled.Clear, contentDescription = "Clear"
-                            )
-                        }
                         if (text.contains("Password", true)) {
                             IconButton(onClick = {
                                 if (eyeIconId == R.drawable.eye_opened) {
@@ -333,6 +328,11 @@ fun Input(
                                     modifier = Modifier.size(30.dp)
                                 )
                             }
+                        }
+                        IconButton(onClick = { onValueChange("") }) {
+                            Icon(
+                                imageVector = Icons.Filled.Clear, contentDescription = "Clear"
+                            )
                         }
                     }
                 }
