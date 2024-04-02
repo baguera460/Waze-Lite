@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Waze Lite Ski</string>
+    <string name="activity_firebase_ui">Firebase UI</string>
+    <string name="login">Login</string>
     <string name="lifts">Montées</string>
     <string name="slopes">Descentes</string>
+    <string name="default_web_client_id" translatable="false">472034623985-umcgs6tbab4h0egb4d2q6q313dbij43l.apps.googleusercontent.com</string>
 </resources>
