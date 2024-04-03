@@ -71,11 +71,12 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
-    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth:22.3.1")
+    implementation("com.firebaseui:firebase-ui:8.0.2")
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
     implementation ("androidx.constraintlayout:constraintlayout:2.1.3")
-    
-    
     implementation ("com.google.firebase:firebase-database-ktx:20.3.0")
     implementation("androidx.activity:activity-compose:1.3.0-alpha02")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02")
