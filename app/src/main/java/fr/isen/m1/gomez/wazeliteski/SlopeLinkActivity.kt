@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import fr.isen.m1.gomez.wazeliteski.data.Level
@@ -397,4 +398,13 @@ fun GetOpinionSlope(opinions: SnapshotStateList<OpinionSlope>) {
                 Log.e("dataBase", error.toString())
             }
         })
+}
+@Composable
+fun SlopeDetailsView(slope: Slope) {
+    // Your UI code to display slope details
+    Column {
+        Text("Name: ${slope.name}")
+        Text("State: ${if (slope.state) "Open" else "Closed"}")
+        // Add more details as needed
+    }
 }
