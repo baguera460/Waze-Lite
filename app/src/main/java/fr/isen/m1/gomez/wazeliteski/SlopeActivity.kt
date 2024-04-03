@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +15,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,6 +32,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,8 +53,26 @@ class SlopeActivity : ComponentActivity() {
             val slopes = remember {
                 mutableStateListOf<Slope>()
             }
-            Column {
+            Column(
+                modifier = Modifier.background(Color(176, 196, 222)),
+            ) {
                 Header()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(176, 196, 222)),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Texte centré en gras et taille 32
+                    Text(
+                        text = "Pistes",
+                        modifier = Modifier
+                            .padding(vertical = 20.dp)
+                            .background(Color(176, 196, 222)),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 32.sp
+                    )
+                }
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -81,13 +104,23 @@ fun SlopeRow(slope: Slope) {
             intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, slope)
             context.startActivity(intent)
         }) {
+            Box(
+                modifier = Modifier
+                    .graphicsLayer(alpha = if (slope.state) 1f else 0.25f)
+                    .size(35.dp)
+                    .background((Level.from(slope.color)).colorId(),
+                        shape = RoundedCornerShape(30.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                "  " + slope.name,
+                slope.name,
                 modifier = Modifier
                     .padding(5.dp, 10.dp)
-                    .fillMaxWidth(0.70f),
+                    .fillMaxWidth(0.70f)
+                    .graphicsLayer(alpha = if (slope.state) 1f else 0.25f),
                 fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
-                color = (Level.from(slope.color)).colorId()
+                color = Color.Black
             )
 
         }
@@ -96,6 +129,7 @@ fun SlopeRow(slope: Slope) {
                 Firebase.database.reference.child("slopes/${slope.index}/state").setValue(newValue)
                 slope.state = newValue },
             modifier = Modifier
+                .graphicsLayer(alpha = if (slope.state) 1f else 0.50f)
                 .align(alignment = Alignment.CenterVertically)
                 .fillMaxWidth(),
             shape = CircleShape,
@@ -104,7 +138,7 @@ fun SlopeRow(slope: Slope) {
         ) {
             Text(
                 if(slope.state) { "Ouverte" } else { "Fermée" },
-                color = Color.Black
+                color = Color.White
             )
         }
 
