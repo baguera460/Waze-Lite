@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -14,27 +15,28 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +52,9 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,115 +91,144 @@ fun LinkView(slope: Slope?) {
     val context = LocalContext.current
 
     val color: Color? = (slope?.color?.let { Level.from(it) })?.colorId()
-    val colorstate: Color = if (slope?.state == true) Color(20, 200, 20) else Color(220, 20, 20)
-    val state: String = if (slope?.state == true) "ouverte" else "fermée"
-    Column {
+    val colorstate: Color = if (slope?.state == true) Color(144, 238, 144) else Color(238, 144, 144)
+    val state: String = if (slope?.state == true) "OUVERTE" else "FERMÉE"
+    Column(Modifier.background(Color(0xFFD9EAF6))) {
         if (color != null) {
-            TopBar("Desservissement ${slope.name}", color)
+            Header()
         }
         Column(
             modifier = Modifier
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState())
-                .background(Color(176, 196, 222))
+                .background(Color(0xFFD9EAF6))
         ) {
-            Row(modifier = Modifier.padding(5.dp, 10.dp)) {
-                Box(
-                    modifier = Modifier
+            Row(
+                modifier = Modifier
+                    .padding(5.dp, 30.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                color?.let {
+                    Modifier
                         .size(45.dp)
                         .clip(CircleShape)
-                        .background(colorstate)
-                )
-                Text(
-                    "Piste $state",
-                    Modifier.padding(5.dp, 10.dp),
-                    fontSize = 20.sp
-                )
+                        .background(it)
+                }?.let {
+                    Box(
+                        modifier = it
+                    )
+                }
+                slope?.name?.let {
+                    Text(
+                        it,
+                        Modifier.padding(30.dp, 0.dp),
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                    )
+                }
             }
-            Divider(color = Color.Black)
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Modifier
+                    .size(45.dp)
+                    .clip(CircleShape)
+                    .background(colorstate)
+                TextButton(
+                    onClick = {
+                        val newValue = !slope?.state!!
+                        Firebase.database.reference.child("slopes/${slope.index}/state")
+                            .setValue(newValue)
+                        slope.state = newValue
+                    },
+                    modifier = Modifier
+                        .align(alignment = Alignment.CenterVertically),
+                    shape = CircleShape,
+                    border = BorderStroke(2.dp, colorstate),
+                    colors = ButtonDefaults.buttonColors(containerColor = colorstate)
+                )
+                {
+                    Text(
+                        state,
+                        Modifier.padding(30.dp, 0.dp),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.White
+                    )
+                }
+            }
             val nexts = slope?.next
             if (nexts != null) {
                 for (i: Int in nexts)
                     GetNextSlopes(index = i, slopes)
             }
             if (slope?.end == true || slope?.next?.isEmpty() == null)
-                Row(Modifier.padding(0.dp, 15.dp)) {
+                Column(
+                    Modifier
+                        .padding(0.dp, 10.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) {
                     if (slope?.end == true && slope.next?.isEmpty() == null)
-                        Image(
-                            painterResource(id = R.drawable.end_slope), null,
-                            Modifier
-                                .size(50.dp)
-                                .clip(RoundedCornerShape(20.dp))
-                        )
-                    if (slope?.end == true && slope.next?.isEmpty() == null)
-                        Text(
-                            text = "Fin de piste",
-                            Modifier.padding(7.dp, 12.dp),
-                            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            style = TextStyle(textDecoration = TextDecoration.Underline)
-                        )
+                        TButton("Information :", "Cette descente est une fin de piste, veuillez ralentir à la fin.", Color(0xFFffc278), 95 )
                     else if (slope?.end == true)
-                        Text(
-                            text = "Possible de terminer la descente sur cette piste",
-                            Modifier.padding(0.dp, 7.dp),
-                            fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
+                        TButton("Information :", "Il est possible de terminer la descente sur cette piste." ,Color(0xFFffc278), 95)
                 }
             if (isparticular(slope)) {
-                Row(Modifier.padding(2.dp, 20.dp)) {
+                Column(
+                    Modifier
+                        .padding(0.dp, 15.dp)
+                        .align(Alignment.CenterHorizontally)){
                     ParticularSlope(slope = slope)
                 }
             }
+
+            Row(Modifier.padding(0.dp, 10.dp)) {}
             if (slopes.isNotEmpty()) {
                 Row(
                     modifier = Modifier
-                        .padding(5.dp, 10.dp)
                         .align(Alignment.CenterHorizontally)
                 ) {
                     Text(
-                        "Pistes desservies \n",
-                        fontSize = 18.sp,
+                        "Descentes desservies \n",
+                        fontSize = 25.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 for (s: Slope in slopes) {
-                    Divider(
-                        color = Color.Black,
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(2.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
-                    TextButton(
-                        onClick = {
-                            val intent = Intent(context, SlopeLinkActivity::class.java)
-                            intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, s)
-                            context.startActivity(intent)
-                        },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                    {
-                        Text(
-                            s.name,
-                            fontSize = 15.sp,
-                            color = (Level.from(s.color)).colorId()
+                    Row() {
+                        Box(
+                            Modifier
+                                .padding(10.dp)
+                                .size(45.dp)
+                                .clip(CircleShape)
+                                .background((Level.from(s.color)).colorId())
                         )
+                        Row(Modifier.padding(0.dp, 7.dp)) {
+                            TextButton(
+                                onClick = {
+                                    val intent = Intent(context, SlopeLinkActivity::class.java)
+                                    intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, s)
+                                    context.startActivity(intent)
+                                },
+                            )
+                            {
+                                Text(
+                                    s.name,
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                )
+                            }
+                        }
                     }
                 }
-                Divider(
-                    color = Color.Black,
-                    modifier = Modifier
-                        .width(80.dp)
-                        .height(2.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-
             }
-            Row(Modifier.padding(0.dp, 40.dp)) {}
+            Row(Modifier.padding(0.dp, 20.dp)) {}
+            Divider(
+                Modifier
+                    .width(250.dp)
+                    .align(Alignment.CenterHorizontally),
+                color = Color.Black
+            )
+            Spacer(Modifier.padding(0.dp, 20.dp))
             var text by remember {
                 mutableStateOf("")
             }
@@ -202,74 +236,72 @@ fun LinkView(slope: Slope?) {
             val opinions_slope = remember {
                 mutableStateListOf<OpinionSlope>()
             }
-            var maxid = 0
-            var pres = 0
-            for (op: OpinionSlope in opinions_slope.toList()) {
-                maxid = if (maxid < op.id) op.id else maxid
-                if (op.slope == slope?.name)
-                    pres = 1
-            }
-            Row(Modifier.padding(0.dp, 5.dp)) {
-                TextField(
-                    value = text, onValueChange = { text = it },
-                    label = { Text("Laisser un commentaire") },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(200, 200, 200),
-                        unfocusedContainerColor = Color(200, 200, 200),
-                        unfocusedLabelColor = Color(155, 155, 155)
-                    ),
-                    modifier = Modifier.width(300.dp)
-                )
-                IconButton(onClick = {
-                    if (text != "") {
-                        val comm = slope?.let { OpinionSlope(maxid + 1, text, it.name, "test@gmail.com") }
-                        Firebase.database.reference.child("opinion_slope/${maxid + 1}/")
-                            .setValue(comm)
-                    }
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.Send, contentDescription = "Send",
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .size(30.dp)
-                    )
-                }
-            }
 
-            Row(
-                Modifier
-                    .background(Color(200, 200, 200))
-                    .fillMaxWidth()
-                    .padding(0.dp, 10.dp)
-            ) {
-                if (pres == 1)
-                    Text("Commentaires récents", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                else
-                    Text("C'est calme ici...", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
+            val maxid = opinions_slope.lastOrNull()?.id
 
-            Column() {
+            Column(Modifier.padding(5.dp)) {
                 for (op: OpinionSlope in opinions_slope.toList()) {
                     Column(
                         Modifier
-                            .background(Color(200, 200, 200))
                             .fillMaxWidth()
                     ) {
                         if (op.slope == slope?.name) {
                             Text(
-                                "De " + op.user,
-                                fontSize = 16.sp
+                                op.user,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text(op.comment)
-                            Spacer(modifier = Modifier.height(8.dp))
+                            TextButton(
+
+                                onClick = {},
+                                enabled = false,
+                                shape = RoundedCornerShape(5.dp),
+                                border = BorderStroke(2.dp, Color(100, 200, 100)),
+                                colors = ButtonDefaults.buttonColors(
+                                    disabledContainerColor = Color(100, 200, 100),
+                                    disabledContentColor = Color.White
+                                )
+                            ) {
+                                Text(op.comment)
+                            }
+                            Spacer(modifier = Modifier.height(18.dp))
                         }
                     }
                 }
             }
 
+
+            Row(Modifier.padding(5.dp, 5.dp)) {
+                Input(
+                    value = text,
+                    text = "Laissez un commentaire",
+                    type = KeyboardType.Text,
+                ) {
+                    text = it
+                }
+                IconButton(onClick = {
+                    if (text != "") {
+                        if (maxid != null) {
+                            Firebase.database.reference.child("opinion_slope/${maxid + 1}/")
+                                .setValue(slope?.name?.let {
+                                    OpinionSlope(
+                                        maxid + 1, text,
+                                        it, "test@gmail.com"
+                                    )
+                                })
+                        }
+                    }
+                    text = ""
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Send, contentDescription = "Send",
+                        modifier = Modifier
+                            .size(40.dp)
+                    )
+                }
+            }
             GetOpinionSlope(opinions_slope)
-            //Text("Afficher plus")
         }
     }
 }
@@ -277,83 +309,32 @@ fun LinkView(slope: Slope?) {
 
 @Composable
 fun ParticularSlope(slope: Slope?) {
-    if (slope?.name == "Le forest") {
-        Column {
-            Text(
-                "Attention :",
-                style = TextStyle(
-                    textDecoration = TextDecoration.Underline,
-                    color = Color.Red
-                )
-            )
-            Text(
-                "Si vous provenez de la piste \"Bouticari vert\",\n" +
-                        "Vous arriverez à la fin de la piste \"Le forest\" !",
-                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-            )
-        }
-    }
+    if (slope?.name == "Le forest")
+            TButton("Attention :",
+                "Si vous provenez de la piste \"Bouticari vert\", " +
+                        "vous arriverez à la fin de la piste \"Le forest\" !",
+                Color(220,20,60), 120)
     if (slope?.name == "Les jockeys")
-        Column {
-            Text(
-                "Attention :",
-                style = TextStyle(
-                    textDecoration = TextDecoration.Underline,
-                    color = Color.Red
-                )
-            )
-            Text(
-                "Si vous provenez de la piste  \"Les chamois\",\n" +
-                        "Vous arriverez à la fin de la piste \"Les jockeys\" !",
-                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-            )
-        }
+        TButton("Attention :",
+                "Si vous provenez de la piste  \"Les chamois\", " +
+                        "vous arriverez à la fin de la piste \"Les jockeys\" !",
+            Color(220,20,60), 120)
     if (slope?.name == "Pré méan")
-        Column {
-            Text(
-                "Attention :",
-                style = TextStyle(
-                    textDecoration = TextDecoration.Underline,
-                    color = Color.Red
-                )
-            )
-            Text(
-                "Si vous provenez de la piste \"Le gourq\",\n" +
-                        "Vous arriverez à la fin de la piste \"Pré méan\" !",
-                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-            )
-        }
+        TButton("Attention :",
+                "Si vous provenez de la piste \"Le gourq\", " +
+                        "vous arriverez à la fin de la piste \"Pré méan\" !",
+            Color(220,20,60), 120)
     if (slope?.name == "Le gourq")
-        Column {
-            Text(
-                "Attention :",
-                style = TextStyle(
-                    textDecoration = TextDecoration.Underline,
-                    color = Color.Red
-                )
-            )
-            Text(
-                "Si vous provenez de la piste \"La mandarine\",\n" +
-                        "Vous ne pourrez pas rejoindre la piste \"La mandarine\" !",
-                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-            )
-        }
+        TButton("Attention :",
+                "Si vous provenez de la piste \"La mandarine\", " +
+                        "vous ne pourrez pas rejoindre la piste \"La mandarine\" !",
+            Color(220,20,60), 120)
     if (slope?.name == "Les lampions")
-        Column {
-            Text(
-                "Attention :",
-                style = TextStyle(
-                    textDecoration = TextDecoration.Underline,
-                    color = Color.Red
-                )
-            )
-            Text(
-                "Si vous provenez de la piste \"La mandarine\",\n" +
-                        "Vous ne pourrez rejoindre que les pistes \"Le S du chamois\"," +
+        TButton("Attention :",
+                "Si vous provenez de la piste \"La mandarine\", " +
+                        "vous ne pourrez rejoindre que les pistes \"Le S du chamois\"," +
                         "\" Les jockeys \" ou \" Le chamois \" !",
-                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular))
-            )
-        }
+            Color(220,20,60), 135)
 }
 
 fun isparticular(slope: Slope?): Boolean {
@@ -376,6 +357,35 @@ fun GetNextSlopes(index: Int?, slopes: MutableList<Slope>) {
             Log.e("dataBase", error.toString())
         }
     })
+}
+
+@Composable
+fun TButton(texthead : String, text : String, col : Color, size : Int){
+    TextButton(
+        onClick = {},
+        enabled = false,
+        modifier = Modifier
+            .height(size.dp)
+            .fillMaxWidth(0.85f),
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(2.dp, col),
+        colors = ButtonDefaults.buttonColors(
+            disabledContainerColor = col,
+            disabledContentColor = Color.White
+        )
+    ) {
+        Column {
+            Text(
+                texthead,
+                fontSize = 20.sp,
+                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
+                fontWeight = FontWeight.Bold
+            )
+            Text(text, Modifier.padding(6.dp),
+                fontFamily = FontFamily(Font(R.font.notoserifmakasar_regular)),
+                fontWeight = FontWeight.Bold)
+        }
+    }
 }
 
 fun GetOpinionSlope(opinions: SnapshotStateList<OpinionSlope>) {
