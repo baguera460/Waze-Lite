@@ -56,7 +56,7 @@ class SlopeActivity : ComponentActivity() {
             Column(
                 modifier = Modifier.background(Color((0xFFD9EAF6))),
             ) {
-                Header()
+                Header(this@SlopeActivity)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
