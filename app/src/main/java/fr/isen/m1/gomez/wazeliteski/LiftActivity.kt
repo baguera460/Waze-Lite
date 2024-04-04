@@ -79,6 +79,21 @@ class LiftActivity : ComponentActivity() {
     }
 }
 
+
+
+//@Composable
+//fun LiftView(lift: Lift) {
+//    val type = LiftType.from(lift.type)
+//    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+//        Image(painterResource(type.drawableId()), "")
+//        Text(lift.name)
+//        val liftState = remember { mutableStateOf(lift.state) }
+//        OpenCloseActivityLift(lift, liftState)
+//
+//    }
+//}
+
+
 @Composable
 fun LiftRow(lift: Lift) {
     val context = LocalContext.current
@@ -139,3 +154,28 @@ fun GetDBData(slopes: SnapshotStateList<Lift>) {
             }
         })
 }
+
+
+
+
+//
+//@Composable
+//fun getDBData(lifts: SnapshotStateList<Lift>){
+//    DataBaseHelper.database.getReference("liftes")
+//        .addListenerForSingleValueEvent(object:ValueEventListener {
+//            override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                val listLiftes = dataSnapshot.children.mapNotNull {
+//                    val lift = it.getValue(Lift::class.java)
+//                    lift?.key = it.key // Assuming 'key' is a property in your Lift class to hold the Firebase key
+//                    lift
+//                }
+//                Log.d("database", lifts.toString())
+//                lifts.addAll(listLiftes)
+//            }
+//
+//            override fun onCancelled(databaseError: DatabaseError) {
+//                Log.e("DB", databaseError.toString())
+//            }
+//        })
+//}
+//
