@@ -198,6 +198,7 @@ fun LinkView(slope: Slope?) {
             Row(Modifier.padding(0.dp, 40.dp)) {}
             var text by remember {
                 mutableStateOf("")
+
             }
 
             val opinions_slope = remember {
@@ -398,6 +399,7 @@ fun GetOpinionSlope(opinions: SnapshotStateList<OpinionSlope>) {
                 Log.e("dataBase", error.toString())
             }
         })
+
 }
 @Composable
 fun SlopeDetailsView(slope: Slope) {
@@ -408,3 +410,4 @@ fun SlopeDetailsView(slope: Slope) {
         // Add more details as needed
     }
 }
+

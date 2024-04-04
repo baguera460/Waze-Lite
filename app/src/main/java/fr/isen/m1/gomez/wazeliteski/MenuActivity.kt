@@ -351,8 +351,12 @@ fun SetupView(menu: MenuInterface) {
                 CustomButton(type = LocationType.SLOPES, menu = menu)
                 TextButton(onClick = {})
                 {
+
+
                     Text(text = "Déconnexion", color = Color(0,0,125), textDecoration = TextDecoration.Underline, fontStyle = FontStyle.Italic,
-                        fontSize = 10.sp)
+                                fontSize = 10.sp)
+
+
                 }
             }
 
