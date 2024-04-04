@@ -54,7 +54,7 @@ class SlopeActivity : ComponentActivity() {
                 mutableStateListOf<Slope>()
             }
             Column(
-                modifier = Modifier.background(Color(176, 196, 222)),
+                modifier = Modifier.background(Color((0xFFD9EAF6))),
             ) {
                 Header()
                 Column(

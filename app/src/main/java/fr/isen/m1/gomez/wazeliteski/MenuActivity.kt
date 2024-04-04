@@ -123,7 +123,7 @@ fun CustomButton(type: LocationType, menu: MenuInterface) {
 }
 
 @Composable
-fun SetupView(menu: MenuInterface) {
+fun SetupView(menu: MenuActivity) {
 
     WazeLiteSkiTheme {
         Surface(
@@ -145,7 +145,7 @@ fun SetupView(menu: MenuInterface) {
                 CustomButton(type = LocationType.LIFTS, menu = menu)
                 Spacer(modifier = Modifier.height(10.dp))
                 CustomButton(type = LocationType.SLOPES, menu = menu)
-                TextButton(onClick = {})
+                TextButton(onClick = { ActivityHelper.signOut(menu) })
                 {
 
                     Text(text = "Déconnexion", color = Color(0,0,125), textDecoration = TextDecoration.Underline, fontStyle = FontStyle.Italic,
