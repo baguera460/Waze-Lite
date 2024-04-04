@@ -6,16 +6,15 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,17 +25,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,18 +42,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -69,11 +61,13 @@ import fr.isen.m1.gomez.wazeliteski.data.Slope
 import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 
 class SlopeLinkActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
+        auth = Firebase.auth
         super.onCreate(savedInstanceState)
         val slope = intent.getSerializableExtra(SLOPE_EXTRA_KEY) as? Slope
         setContent {
-            LinkView(slope)
+            LinkView(slope, this@SlopeLinkActivity)
         }
     }
 
@@ -83,7 +77,7 @@ class SlopeLinkActivity : ComponentActivity() {
 }
 
 @Composable
-fun LinkView(slope: Slope?) {
+fun LinkView(slope: Slope?, activity: SlopeLinkActivity) {
 
     val slopes = remember {
         mutableStateListOf<Slope>()
@@ -91,11 +85,11 @@ fun LinkView(slope: Slope?) {
     val context = LocalContext.current
 
     val color: Color? = (slope?.color?.let { Level.from(it) })?.colorId()
-    val colorstate: Color = if (slope?.state == true) Color(144, 238, 144) else Color(238, 144, 144)
+    val colorstate: Color = if (slope?.state == true) Color(0xFF00BD41) else Color(238, 144, 144)
     val state: String = if (slope?.state == true) "OUVERTE" else "FERMÉE"
     Column(Modifier.background(Color(0xFFD9EAF6))) {
         if (color != null) {
-            Header()
+            Header(activity)
         }
         Column(
             modifier = Modifier
@@ -193,7 +187,7 @@ fun LinkView(slope: Slope?) {
                     )
                 }
                 for (s: Slope in slopes) {
-                    Row() {
+                    Row{
                         Box(
                             Modifier
                                 .padding(10.dp)
@@ -233,14 +227,14 @@ fun LinkView(slope: Slope?) {
                 mutableStateOf("")
             }
 
-            val opinions_slope = remember {
+            val opinionsSlope = remember {
                 mutableStateListOf<OpinionSlope>()
             }
 
-            val maxid = opinions_slope.lastOrNull()?.id
+            val maxid = opinionsSlope.lastOrNull()?.id
 
             Column(Modifier.padding(5.dp)) {
-                for (op: OpinionSlope in opinions_slope.toList()) {
+                for (op: OpinionSlope in opinionsSlope.toList()) {
                     Column(
                         Modifier
                             .fillMaxWidth()
@@ -271,6 +265,7 @@ fun LinkView(slope: Slope?) {
                 }
             }
 
+            val currentUser = Firebase.auth.currentUser?.email.toString()
 
             Row(Modifier.padding(5.dp, 5.dp)) {
                 Input(
@@ -287,13 +282,14 @@ fun LinkView(slope: Slope?) {
                                 .setValue(slope?.name?.let {
                                     OpinionSlope(
                                         maxid + 1, text,
-                                        it, "test@gmail.com"
+                                        it, currentUser
                                     )
                                 })
                         }
                     }
                     text = ""
-                }) {
+                },
+                    modifier = Modifier.absoluteOffset(y=30.dp)) {
                     Icon(
                         imageVector = Icons.Filled.Send, contentDescription = "Send",
                         modifier = Modifier
@@ -301,7 +297,7 @@ fun LinkView(slope: Slope?) {
                     )
                 }
             }
-            GetOpinionSlope(opinions_slope)
+            getOpinionSlope(opinionsSlope)
         }
     }
 }
@@ -388,7 +384,7 @@ fun TButton(texthead : String, text : String, col : Color, size : Int){
     }
 }
 
-fun GetOpinionSlope(opinions: SnapshotStateList<OpinionSlope>) {
+fun getOpinionSlope(opinions: SnapshotStateList<OpinionSlope>) {
     DataBaseHelper.database.getReference("opinion_slope")
         .addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

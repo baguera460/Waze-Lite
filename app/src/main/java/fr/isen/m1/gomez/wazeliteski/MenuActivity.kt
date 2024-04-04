@@ -365,8 +365,10 @@ fun SetupView(menu: MenuActivity) {
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 CustomButton(type = LocationType.SLOPES, menu = menu)
+
                 Spacer(modifier = Modifier.height(60.dp))
                 TextButton(onClick = {ActivityHelper.signOut(menu)})
+
                 {
                     Text(text = "Déconnexion", color = Color(0,0,125), textDecoration = TextDecoration.Underline, fontStyle = FontStyle.Italic,
                                 fontSize = 10.sp)
