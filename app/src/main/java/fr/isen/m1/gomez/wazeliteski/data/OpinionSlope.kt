@@ -7,5 +7,4 @@ data class OpinionSlope(
     val comment: String = "",
     val slope: String = "",
     val user: String = "",
-
-) : Serializable
+    ) : Serializable
