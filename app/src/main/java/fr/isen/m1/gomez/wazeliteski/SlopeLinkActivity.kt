@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -59,6 +60,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -69,7 +73,9 @@ import fr.isen.m1.gomez.wazeliteski.data.Slope
 import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 
 class SlopeLinkActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
+        auth = Firebase.auth
         super.onCreate(savedInstanceState)
         val slope = intent.getSerializableExtra(SLOPE_EXTRA_KEY) as? Slope
         setContent {
@@ -91,7 +97,7 @@ fun LinkView(slope: Slope?) {
     val context = LocalContext.current
 
     val color: Color? = (slope?.color?.let { Level.from(it) })?.colorId()
-    val colorstate: Color = if (slope?.state == true) Color(144, 238, 144) else Color(238, 144, 144)
+    val colorstate: Color = if (slope?.state == true) Color(0xFF00BD41) else Color(238, 144, 144)
     val state: String = if (slope?.state == true) "OUVERTE" else "FERMÉE"
     Column(Modifier.background(Color(0xFFD9EAF6))) {
         if (color != null) {
@@ -271,6 +277,7 @@ fun LinkView(slope: Slope?) {
                 }
             }
 
+            val currentUser = Firebase.auth.currentUser?.email.toString()
 
             Row(Modifier.padding(5.dp, 5.dp)) {
                 Input(
@@ -287,13 +294,14 @@ fun LinkView(slope: Slope?) {
                                 .setValue(slope?.name?.let {
                                     OpinionSlope(
                                         maxid + 1, text,
-                                        it, "test@gmail.com"
+                                        it, currentUser
                                     )
                                 })
                         }
                     }
                     text = ""
-                }) {
+                },
+                    modifier = Modifier.absoluteOffset(y=30.dp)) {
                     Icon(
                         imageVector = Icons.Filled.Send, contentDescription = "Send",
                         modifier = Modifier

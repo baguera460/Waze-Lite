@@ -60,7 +60,7 @@ class SlopeActivity : ComponentActivity() {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(176, 196, 222)),
+                        .background(Color(0xFFD9EAF6)),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Texte centré en gras et taille 32
@@ -68,7 +68,7 @@ class SlopeActivity : ComponentActivity() {
                         text = "Pistes",
                         modifier = Modifier
                             .padding(vertical = 20.dp)
-                            .background(Color(176, 196, 222)),
+                            .background(Color(0xFFD9EAF6)),
                         fontWeight = FontWeight.Bold,
                         fontSize = 32.sp
                     )
@@ -79,7 +79,7 @@ class SlopeActivity : ComponentActivity() {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(176, 196, 222))
+                            .background(Color(0xFFD9EAF6))
                     ) {
                         items(slopes.toList()) {
                             SlopeRow(it)
