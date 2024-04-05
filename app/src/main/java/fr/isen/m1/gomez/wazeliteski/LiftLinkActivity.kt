@@ -239,10 +239,7 @@ fun SlopesList(next: List<Int>, slopes: MutableList<Slope>) {
     val context = LocalContext.current
     Column(Modifier.padding(0.dp, 10.dp)) {
         if (next.isNotEmpty()) {
-            Box (modifier = Modifier
-                .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
+            Box (Modifier.fillMaxWidth(), Alignment.Center) {
                 Text("Descentes desservies \n",
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
