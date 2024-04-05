@@ -55,6 +55,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -63,8 +64,8 @@ import fr.isen.m1.gomez.wazeliteski.data.Level
 import fr.isen.m1.gomez.wazeliteski.data.Lift
 import fr.isen.m1.gomez.wazeliteski.data.LiftType
 import fr.isen.m1.gomez.wazeliteski.data.OpinionLift
-import fr.isen.m1.gomez.wazeliteski.data.OpinionSlope
 import fr.isen.m1.gomez.wazeliteski.data.Slope
+import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 
 
 class LiftLinkActivity : ComponentActivity() {
@@ -89,6 +90,10 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
     var text by remember {
         mutableStateOf("")
     }
+    val slopes = remember {
+        mutableStateListOf<Slope>()
+    }
+
     val opinionsLift = remember {
         mutableStateListOf<OpinionLift>()
     }
@@ -108,7 +113,6 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
                 modifier = Modifier
                     .padding(5.dp, 30.dp)
                     .align(Alignment.CenterHorizontally)
-                    .absoluteOffset(x = (-30).dp)
             ) {
                 Image(
                     painter = painterResource(id = liftType.drawableId()),
@@ -124,46 +128,45 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
                     )
                 }
             }
-            Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Modifier
-                    .size(45.dp)
-                    .clip(CircleShape)
-                    .background(colorstate)
-                TextButton(
-                    onClick = {
-                        val newValue = !lift?.state!!
-                        Firebase.database.reference.child("liftes/${lift.index}/state")
-                            .setValue(newValue)
-                        lift.state = newValue
-                    },
-                    modifier = Modifier
-                        .align(alignment = Alignment.CenterVertically),
-                    shape = CircleShape,
-                    border = BorderStroke(2.dp, colorstate),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorstate)
-                )
-                {
-                    Text(
-                        state,
-                        Modifier.padding(30.dp, 0.dp),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.White
-                    )
+            if (lift != null) {
+                Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Modifier
+                        .size(45.dp)
+                        .clip(CircleShape)
+                        .background(colorstate)
+                    TextButton(
+                        onClick = {
+                            val newValue = !lift.state
+                            Firebase.database.reference.child("liftes/${lift.index}/state")
+                                .setValue(newValue)
+                            lift.state = newValue
+                        },
+                        modifier = Modifier.align(alignment = Alignment.CenterVertically),
+                        shape = CircleShape,
+                        border = BorderStroke(2.dp, colorstate),
+                        colors = ButtonDefaults.buttonColors(containerColor = colorstate)
+                    ) {
+                        Text(
+                            state,
+                            Modifier.padding(30.dp, 0.dp),
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White
+                        )
+                    }
                 }
             }
 
 
             if (lift != null) {
-                SlopesList(lift.slopes)
+                SlopesList(lift.slopes, slopes)
             }
 
             Row(Modifier.padding(0.dp, 20.dp)) {}
             Divider(
                 Modifier
                     .width(250.dp)
-                    .align(Alignment.CenterHorizontally),
-                color = Color.Black
+                    .align(Alignment.CenterHorizontally), color = Color.Black
             )
             Spacer(Modifier.padding(0.dp, 20.dp))
 
@@ -209,13 +212,12 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
                 IconButton(
                     onClick = {
                         if (text != "") {
-                            Firebase.database.reference.child("opinion_lift/${maxid}/").setValue(
-                                lift?.name?.let {
+                            Firebase.database.reference.child("opinion_lift/${maxid}/")
+                                .setValue(lift?.name?.let {
                                     OpinionLift(
                                         maxid, text, it, currentUser
                                     )
-                                }
-                                )
+                                })
                         }
                         text = ""
                     }, modifier = Modifier.absoluteOffset(y = 30.dp)
@@ -234,34 +236,40 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
 }
 
 @Composable
-fun SlopesList(slopes: List<String>) {
+fun SlopesList(next: List<Int>, slopes: MutableList<Slope>) {
+    val context = LocalContext.current
     Row(Modifier.padding(0.dp, 10.dp)) {}
-    if (slopes.isNotEmpty()) {
+    if (next.isNotEmpty()) {
         Row(
         ) {
             Text(
-                "Descentes desservies \n",
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
+                "Descentes desservies \n", fontSize = 25.sp, fontWeight = FontWeight.Bold
             )
         }
-        for (s: String in slopes) {
+
+        for (i: Int in next)
+            GetNextSlopesForLifts(index = i, slopes = slopes)
+
+        for (s: Slope in slopes) {
             Row{
                 Box(
                     Modifier
                         .padding(10.dp)
                         .size(45.dp)
                         .clip(CircleShape)
-                        .background(Color.Cyan)
+                        .background((Level.from(s.color)).colorId())
                 )
                 Row(Modifier.padding(0.dp, 7.dp)) {
                     TextButton(
                         onClick = {
+                            val intent = Intent(context, SlopeLinkActivity::class.java)
+                            intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, s)
+                            context.startActivity(intent)
                         },
                     )
                     {
                         Text(
-                            s,
+                            s.name,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
@@ -294,4 +302,22 @@ fun GetOpinionLift(opinions: SnapshotStateList<OpinionLift>) {
                 Log.e("dataBase", error.toString())
             }
         })
+}
+
+
+@Composable
+fun GetNextSlopesForLifts(index: Int?, slopes: MutableList<Slope>) {
+    val ref = DataBaseHelper.database.getReference("slopes/$index")
+    ref.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            val slope = snapshot.getValue(Slope::class.java)
+            if (slope != null && !slopes.contains(slope)) {
+                slopes.add(slope)
+            }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.e("dataBase", error.toString())
+        }
+    })
 }
