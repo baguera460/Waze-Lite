@@ -237,42 +237,47 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
 @Composable
 fun SlopesList(next: List<Int>, slopes: MutableList<Slope>) {
     val context = LocalContext.current
-    Row(Modifier.padding(0.dp, 10.dp)) {}
-    if (next.isNotEmpty()) {
-        Row(
-        ) {
-            Text(
-                "Descentes desservies \n", fontSize = 25.sp, fontWeight = FontWeight.Bold
-            )
-        }
-
-        for (i: Int in next)
-            GetNextSlopesForLifts(index = i, slopes = slopes)
-
-        for (s: Slope in slopes) {
-            Row{
-                Box(
-                    Modifier
-                        .padding(10.dp)
-                        .size(45.dp)
-                        .clip(CircleShape)
-                        .background((Level.from(s.color)).colorId())
+    Column(Modifier.padding(0.dp, 10.dp)) {
+        if (next.isNotEmpty()) {
+            Box (modifier = Modifier
+                .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Descentes desservies \n",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
                 )
-                Row(Modifier.padding(0.dp, 7.dp)) {
-                    TextButton(
-                        onClick = {
-                            val intent = Intent(context, SlopeLinkActivity::class.java)
-                            intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, s)
-                            context.startActivity(intent)
-                        },
+            }
+
+
+            for (i: Int in next)
+                GetNextSlopesForLifts(index = i, slopes = slopes)
+
+            for (s: Slope in slopes) {
+                Row {
+                    Box(
+                        Modifier
+                            .padding(10.dp)
+                            .size(45.dp)
+                            .clip(CircleShape)
+                            .background((Level.from(s.color)).colorId())
                     )
-                    {
-                        Text(
-                            s.name,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                    Row(Modifier.padding(0.dp, 7.dp)) {
+                        TextButton(
+                            onClick = {
+                                val intent = Intent(context, SlopeLinkActivity::class.java)
+                                intent.putExtra(SlopeLinkActivity.SLOPE_EXTRA_KEY, s)
+                                context.startActivity(intent)
+                            },
                         )
+                        {
+                            Text(
+                                s.name,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black,
+                            )
+                        }
                     }
                 }
             }
