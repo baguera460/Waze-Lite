@@ -347,7 +347,7 @@ fun SetupView(menu: MenuActivity) {
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier.matchParentSize()
             )
-            Header()
+            Header(menu)
             Column (modifier = Modifier.fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(painterResource(id = R.drawable.mountain_sunrise_icon),contentDescription = null,
                     modifier = Modifier

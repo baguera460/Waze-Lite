@@ -61,9 +61,7 @@ import fr.isen.m1.gomez.wazeliteski.data.Slope
 import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 
 class SlopeLinkActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
-        auth = Firebase.auth
         super.onCreate(savedInstanceState)
         val slope = intent.getSerializableExtra(SLOPE_EXTRA_KEY) as? Slope
         setContent {
@@ -231,7 +229,8 @@ fun LinkView(slope: Slope?, activity: SlopeLinkActivity) {
                 mutableStateListOf<OpinionSlope>()
             }
 
-            val maxid = opinionsSlope.lastOrNull()?.id
+            val maxid = opinionsSlope.size
+
 
             Column(Modifier.padding(5.dp)) {
                 for (op: OpinionSlope in opinionsSlope.toList()) {
@@ -277,15 +276,13 @@ fun LinkView(slope: Slope?, activity: SlopeLinkActivity) {
                 }
                 IconButton(onClick = {
                     if (text != "") {
-                        if (maxid != null) {
-                            Firebase.database.reference.child("opinion_slope/${maxid + 1}/")
-                                .setValue(slope?.name?.let {
-                                    OpinionSlope(
-                                        maxid + 1, text,
-                                        it, currentUser
-                                    )
-                                })
-                        }
+                        Firebase.database.reference.child("opinion_slope/${maxid}/")
+                            .setValue(slope?.name?.let {
+                                OpinionSlope(
+                                    maxid, text,
+                                    it, currentUser
+                                )
+                            })
                     }
                     text = ""
                 },
