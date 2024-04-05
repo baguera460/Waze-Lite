@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,7 +25,7 @@ import androidx.compose.ui.unit.sp
 fun Header(activity: ComponentActivity) {
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = { ActivityHelper.goToActivity(activity, MenuActivity::class.java, Intent.FLAG_ACTIVITY_CLEAR_TOP) }) {
+            IconButton(onClick = { ActivityHelper.goToActivity(activity, MenuActivity::class.java, Intent.FLAG_ACTIVITY_CLEAR_TOP) },modifier = Modifier.size(60.dp)) {
                 Image(
                     painterResource(id = R.drawable.waze_logo),null)
             }

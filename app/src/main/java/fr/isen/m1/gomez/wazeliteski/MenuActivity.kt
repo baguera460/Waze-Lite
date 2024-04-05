@@ -207,22 +207,16 @@ package fr.isen.m1.gomez.wazeliteski
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ActionMenuView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.VectorConverter
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -242,11 +236,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.components.Component
 import fr.isen.m1.gomez.wazeliteski.ui.theme.WazeLiteSkiTheme
-import fr.isen.m1.gomez.wazeliteski.Header
 
 enum class LocationType {
     LIFTS, SLOPES;
@@ -336,7 +327,6 @@ fun CustomButton(type: LocationType, menu: MenuInterface) {
 
 @Composable
 fun SetupView(menu: MenuActivity) {
-
     WazeLiteSkiTheme {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -347,7 +337,7 @@ fun SetupView(menu: MenuActivity) {
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier.matchParentSize()
             )
-            Header()
+            Header(menu)
             Column (modifier = Modifier.fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(painterResource(id = R.drawable.mountain_sunrise_icon),contentDescription = null,
                     modifier = Modifier
