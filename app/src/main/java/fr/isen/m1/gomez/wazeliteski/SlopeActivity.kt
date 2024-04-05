@@ -53,9 +53,7 @@ class SlopeActivity : ComponentActivity() {
             val slopes = remember {
                 mutableStateListOf<Slope>()
             }
-            Column(
-                modifier = Modifier.background(Color((0xFFD9EAF6))),
-            ) {
+            Column (modifier = Modifier.background(Color(0xFFD9EAF6))) {
                 Header(this@SlopeActivity)
                 Column(
                     modifier = Modifier
@@ -63,7 +61,6 @@ class SlopeActivity : ComponentActivity() {
                         .background(Color(0xFFD9EAF6)),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Texte centré en gras et taille 32
                     Text(
                         text = "Pistes",
                         modifier = Modifier
@@ -77,9 +74,7 @@ class SlopeActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color(0xFFD9EAF6))
+                        modifier = Modifier.background(Color(0xFFD9EAF6))
                     ) {
                         items(slopes.toList()) {
                             SlopeRow(it)
@@ -122,7 +117,6 @@ fun SlopeRow(slope: Slope) {
                 fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
                 color = Color.Black
             )
-
         }
         TextButton(
             onClick = {val newValue = !slope.state
@@ -131,7 +125,7 @@ fun SlopeRow(slope: Slope) {
             modifier = Modifier
                 .graphicsLayer(alpha = if (slope.state) 1f else 0.50f)
                 .align(alignment = Alignment.CenterVertically)
-                .fillMaxWidth(),
+                .fillMaxWidth(0.95f),
             shape = CircleShape,
             border = BorderStroke(2.dp, col),
             colors = ButtonDefaults.buttonColors(containerColor = container)

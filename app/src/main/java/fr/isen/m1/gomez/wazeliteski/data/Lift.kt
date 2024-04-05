@@ -17,7 +17,6 @@ enum class LiftType{
         return when(this){
             TELESIEGE -> R.drawable.telesiege
             TIREFESSE -> R.drawable.fesse
-
         }
     }
     companion object{

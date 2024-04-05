@@ -230,7 +230,6 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
                 }
             }
         }
-
         GetOpinionLift(opinionsLift)
     }
 }

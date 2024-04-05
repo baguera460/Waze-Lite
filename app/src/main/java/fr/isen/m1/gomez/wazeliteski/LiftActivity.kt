@@ -86,7 +86,7 @@ class LiftActivity : ComponentActivity() {
                             Spacer(modifier = Modifier.height(5.dp))
                         }
                     }
-                    GetDBData(liftes)
+                    GetDBDataLift(liftes)
                 }
             }
 
@@ -131,7 +131,8 @@ fun LiftRow(lift: Lift) {
         }
         TextButton(
             onClick = {val newValue = !lift.state
-                Firebase.database.reference.child("slopes/${lift.index}/state").setValue(newValue)
+                Firebase.database.reference.child("liftes/${lift.index}/state")
+                        .setValue(newValue)
                 lift.state = newValue },
             modifier = Modifier
                 .graphicsLayer(alpha = if (lift.state) 1f else 0.50f)
@@ -150,19 +151,19 @@ fun LiftRow(lift: Lift) {
 }
 
 @Composable
-fun GetDBData(slopes: SnapshotStateList<Lift>) {
+fun GetDBDataLift(lift: SnapshotStateList<Lift>) {
     DataBaseHelper.database.getReference("liftes")
         .addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var index = 0
-                val fireBaseSlopes = snapshot.children.mapNotNull {
-                    val slope = it.getValue(Lift::class.java)
-                    slope?.index = index
+                val fireBaseLift = snapshot.children.mapNotNull {
+                    val lift = it.getValue(Lift::class.java)
+                    lift?.index = index
                     index += 1
-                    return@mapNotNull slope
+                    return@mapNotNull lift
                 }
-                slopes.removeAll { true }
-                slopes.addAll(fireBaseSlopes)
+                lift.removeAll { true }
+                lift.addAll(fireBaseLift)
             }
             override fun onCancelled(error: DatabaseError) {
                 Log.e("dataBase", error.toString())
