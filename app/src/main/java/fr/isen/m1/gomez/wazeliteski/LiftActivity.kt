@@ -31,16 +31,25 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import fr.isen.m1.gomez.wazeliteski.data.Level
 import fr.isen.m1.gomez.wazeliteski.data.Lift
+import fr.isen.m1.gomez.wazeliteski.data.LiftType
 import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 
 class LiftActivity : ComponentActivity() {
@@ -50,23 +59,34 @@ class LiftActivity : ComponentActivity() {
             val liftes = remember {
                 mutableStateListOf<Lift>()
             }
-            Column {
-
+            Column (modifier = Modifier.background(Color(0xFFD9EAF6))){
                 Header(this@LiftActivity)
-
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFD9EAF6)),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Remontées",
+                        modifier = Modifier
+                            .padding(vertical = 20.dp)
+                            .background(Color(0xFFD9EAF6)),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 32.sp
+                    )
+                }
                 Surface(modifier = Modifier.fillMaxSize())
                 {
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color(176, 196, 222))
+                        modifier = Modifier.background(Color(0xFFD9EAF6))
                     ) {
                         items(liftes.toList()) {
                             LiftRow(it)
                             Spacer(modifier = Modifier.height(5.dp))
                         }
                     }
-                    GetDBData(liftes)
+                    GetDBDataLift(liftes)
                 }
             }
 
@@ -79,55 +99,71 @@ fun LiftRow(lift: Lift) {
     val context = LocalContext.current
     val col: Color = if (lift.state) Color(20, 200, 20) else Color(220, 20, 20)
     val container: Color = if (lift.state) Color(22, 164, 7) else Color(200, 20, 20)
+    val liftType = LiftType.from(lift.type ?: "")
     Row {
         TextButton(onClick = {
             val intent = Intent(context, LiftLinkActivity::class.java)
             intent.putExtra(LiftLinkActivity.LIFT_EXTRA_KEY, lift)
             context.startActivity(intent)
         }) {
+            Box(
+                modifier = Modifier
+                    .graphicsLayer(alpha = if (lift.state) 1f else 0.25f)
+                    .size(35.dp)
+            )
+            {
+                Image(
+                    painter = painterResource(id = liftType.drawableId()),
+                    contentDescription = "Lift Type Icon",
+                    modifier = Modifier.size(60.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                "  " + lift.name,
+                lift.name,
                 modifier = Modifier
                     .padding(5.dp, 10.dp)
-                    .fillMaxWidth(0.70f),
+                    .fillMaxWidth(0.70f)
+                    .graphicsLayer(alpha = if (lift.state) 1f else 0.25f),
                 fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
+                color = Color.Black
             )
-
         }
         TextButton(
             onClick = {val newValue = !lift.state
-                Firebase.database.reference.child("liftes/${lift.index}/state").setValue(newValue)
+                Firebase.database.reference.child("liftes/${lift.index}/state")
+                        .setValue(newValue)
                 lift.state = newValue },
             modifier = Modifier
+                .graphicsLayer(alpha = if (lift.state) 1f else 0.50f)
                 .align(alignment = Alignment.CenterVertically)
-                .fillMaxWidth(),
+                .fillMaxWidth(0.95f),
             shape = CircleShape,
             border = BorderStroke(2.dp, col),
             colors = ButtonDefaults.buttonColors(containerColor = container)
         ) {
             Text(
                 if(lift.state) { "Ouverte" } else { "Fermée" },
-                color = Color.Black
+                color = Color.White
             )
         }
-
     }
 }
 
 @Composable
-fun GetDBData(slopes: SnapshotStateList<Lift>) {
+fun GetDBDataLift(lift: SnapshotStateList<Lift>) {
     DataBaseHelper.database.getReference("liftes")
         .addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var index = 0
-                val fireBaseSlopes = snapshot.children.mapNotNull {
-                    val slope = it.getValue(Lift::class.java)
-                    slope?.index = index
+                val fireBaseLift = snapshot.children.mapNotNull {
+                    val lift = it.getValue(Lift::class.java)
+                    lift?.index = index
                     index += 1
-                    return@mapNotNull slope
+                    return@mapNotNull lift
                 }
-                slopes.removeAll { true }
-                slopes.addAll(fireBaseSlopes)
+                lift.removeAll { true }
+                lift.addAll(fireBaseLift)
             }
             override fun onCancelled(error: DatabaseError) {
                 Log.e("dataBase", error.toString())

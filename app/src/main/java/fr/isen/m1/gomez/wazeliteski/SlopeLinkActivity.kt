@@ -49,7 +49,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -61,9 +60,7 @@ import fr.isen.m1.gomez.wazeliteski.data.Slope
 import fr.isen.m1.gomez.wazeliteski.database.DataBaseHelper
 
 class SlopeLinkActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
-        auth = Firebase.auth
         super.onCreate(savedInstanceState)
         val slope = intent.getSerializableExtra(SLOPE_EXTRA_KEY) as? Slope
         setContent {
@@ -231,7 +228,8 @@ fun LinkView(slope: Slope?, activity: SlopeLinkActivity) {
                 mutableStateListOf<OpinionSlope>()
             }
 
-            val maxid = opinionsSlope.lastOrNull()?.id
+            val maxid = opinionsSlope.size
+
 
             Column(Modifier.padding(5.dp)) {
                 for (op: OpinionSlope in opinionsSlope.toList()) {
@@ -266,7 +264,7 @@ fun LinkView(slope: Slope?, activity: SlopeLinkActivity) {
             }
 
             val currentUser = Firebase.auth.currentUser?.email.toString()
-
+            Spacer(Modifier.weight(1f))
             Row(Modifier.padding(5.dp, 5.dp)) {
                 Input(
                     value = text,
@@ -277,15 +275,13 @@ fun LinkView(slope: Slope?, activity: SlopeLinkActivity) {
                 }
                 IconButton(onClick = {
                     if (text != "") {
-                        if (maxid != null) {
-                            Firebase.database.reference.child("opinion_slope/${maxid + 1}/")
-                                .setValue(slope?.name?.let {
-                                    OpinionSlope(
-                                        maxid + 1, text,
-                                        it, currentUser
-                                    )
-                                })
-                        }
+                        Firebase.database.reference.child("opinion_slope/${maxid}/")
+                            .setValue(slope?.name?.let {
+                                OpinionSlope(
+                                    maxid, text,
+                                    it, currentUser
+                                )
+                            })
                     }
                     text = ""
                 },
