@@ -1,1 +1,11 @@
-/build
+/build/generated
+/build/intermediates
+/build/kotlin
+/build/kotlinToolingMetadata
+/build/outputs/logs
+/build/outputs/sdk-dependencies
+/build/reports
+/build/snapshot
+/build/test-results
+/build/tmp
+/build/gmpAppId.txt
