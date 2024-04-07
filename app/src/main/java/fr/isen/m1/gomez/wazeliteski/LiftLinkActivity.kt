@@ -84,14 +84,18 @@ class LiftLinkActivity : ComponentActivity() {
 
 @Composable
 fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
-    val state: String = if (lift?.state == true) "OUVERTE" else "FERMÉE"
-    val colorstate: Color = if (lift?.state == true) Color(0xFF00BD41) else Color(238, 144, 144)
+
+    val slopes = remember {
+        mutableStateListOf<Slope>()
+    }
+
+    val liftState = remember { mutableStateOf(lift?.state ?: false) }
+    val state: String = if (liftState.value) "OUVERTE" else "FERMÉE"
+    var colorstate by remember { mutableStateOf(if (lift?.state == true) Color(0xFF00BD41) else Color(238, 144, 144)) }
+    Text(colorstate.toString())
     val liftType = LiftType.from(lift?.type ?: "")
     var text by remember {
         mutableStateOf("")
-    }
-    val slopes = remember {
-        mutableStateListOf<Slope>()
     }
 
     val opinionsLift = remember {
@@ -136,10 +140,11 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
                         .background(colorstate)
                     TextButton(
                         onClick = {
-                            val newValue = !lift.state
+                            val newValue = !liftState.value
                             Firebase.database.reference.child("liftes/${lift.index}/state")
                                 .setValue(newValue)
-                            lift.state = newValue
+                            liftState.value = newValue
+                            colorstate = if (newValue) Color(0xFF00BD41) else Color(238, 144, 144)
                         },
                         modifier = Modifier.align(alignment = Alignment.CenterVertically),
                         shape = CircleShape,
