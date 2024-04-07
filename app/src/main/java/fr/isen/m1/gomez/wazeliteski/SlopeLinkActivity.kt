@@ -49,7 +49,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -265,7 +264,7 @@ fun LinkView(slope: Slope?, activity: SlopeLinkActivity) {
             }
 
             val currentUser = Firebase.auth.currentUser?.email.toString()
-
+            Spacer(Modifier.weight(1f))
             Row(Modifier.padding(5.dp, 5.dp)) {
                 Input(
                     value = text,

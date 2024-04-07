@@ -205,7 +205,7 @@ fun LinkView(lift: Lift?, activity: LiftLinkActivity) {
             }
 
             val currentUser = Firebase.auth.currentUser?.email.toString()
-
+            Spacer(Modifier.weight(1f))
             Row(Modifier.padding(5.dp, 5.dp)) {
                 Input(
                     value = text,
